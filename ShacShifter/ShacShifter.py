@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')))
 
 import argparse
-from ShacShifter import ShapeParser
+from ShacShifter.ShapeParser import ShapeParser
 # from RDFormsWriter import RDFormsWriter
 
 

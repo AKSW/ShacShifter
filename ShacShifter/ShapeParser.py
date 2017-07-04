@@ -10,5 +10,4 @@ class ShapeParser:
         for stmt in g:
             print(stmt)
 
-class Shape:
-    
+# class Shape:

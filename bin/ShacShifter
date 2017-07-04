@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import ShacShifter
+
+if __name__ == '__main__':
+    ShacShifter.main()

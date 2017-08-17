@@ -24,42 +24,42 @@ class ShapeParser:
             print('-------------------------------------------------------------')
 
     def getNodeShapeUris(self, g):
+
+        sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
         nodeShapeUris = []
         #probably not a full list, as long as no Grammar exists, its probably staying incomplete
         #shacl-shacl could be analyzed for that
         #ignores sh:or/and/not/xone for now, they can be in node and property shapes, and can contain both as shacl list
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            rdflib.term.URIRef('http://www.w3.org/ns/shacl#NodeShape')):
+        for stmt in g.subjects(rdflib.RDF.type, sh.NodeShape):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#property'), None): #or/and/xor lists filtered, shouldnt be added here either way
+        for stmt in g.subjects(sh.property, None): #or/and/xor lists filtered, shouldnt be added here either way
             if not(stmt in nodeShapeUris) and stmt != rdflib.term.BNode(stmt):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#targetClass'), None):
+        for stmt in g.subjects(sh.targetClass, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#targetNode'), None):
+        for stmt in g.subjects(sh.targetNode, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#targetObjectsOf'), None):
+        for stmt in g.subjects(sh.targetObjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#targetSubjectsOf'), None):
+        for stmt in g.subjects(sh.targetSubjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/ns/shacl#targetSubjectsOf'), None):
+        for stmt in g.subjects(sh.targetSubjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
         #actually not exactly a nodeshape
-        for stmt in g.subjects(rdflib.term.URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-            rdflib.term.URIRef('http://www.w3.org/ns/shacl#PropertyGroup')):
+        for stmt in g.subjects(rdflib.RDF.type, sh.PropertyGroup):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
@@ -123,7 +123,7 @@ class NodeShape:
     #self.sparql used for non core constraints
     #can have obviously more properties, but we need to filter the relevant ones
     #closed probably irrelevant for forms, ignoredProperties too, the logical operators are probably tricky to evaluate
-    #everything that doesnt contain sh:path is a nodeshape -> groups (sh:PropertyGroup) are kind of nodeshapes, 
+    #everything that doesnt contain sh:path is a nodeshape -> groups (sh:PropertyGroup) are kind of nodeshapes,
     #though they could be seen as another class
 class PropertyShape:
     def __init__(self):
@@ -144,5 +144,3 @@ parser.add_argument('-s', '--shacl', type=str, help="The input SHACL file")
 args = parser.parse_args()
 sparser = ShapeParser()
 sparser.parseShape(args.shacl)
-
-

@@ -109,13 +109,83 @@ class ShapeParser:
         return nodeShape
 
     def parsePropertyShape(self, g, shapeUri):
+        rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
         sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
         propertyShape = PropertyShape()
         if shapeUri != rdflib.term.BNode(shapeUri):
             propertyShape.uri = shapeUri
         pathStart = g.value(subject=shapeUri, predicate=sh.path)
         propertyShape.path = self.getPropertyPath(g, pathStart)
-        
+
+        for stmt in g.objects(shapeUri, sh['class']):
+            propertyShape.classes.append(stmt)
+
+        if not (g.value(subject=shapeUri, predicate=sh.datatype) is None):
+            propertyShape.datatype = g.value(subject=shapeUri, predicate=sh.datatype)
+
+        if not (g.value(subject=shapeUri, predicate=sh.minCount) is None):
+            propertyShape.minCount = g.value(subject=shapeUri, predicate=sh.minCount)
+
+        if not (g.value(subject=shapeUri, predicate=sh.maxCount) is None):
+            propertyShape.maxCount = g.value(subject=shapeUri, predicate=sh.maxCount)
+
+        if not (g.value(subject=shapeUri, predicate=sh.minExclusive) is None):
+            propertyShape.minExclusive = g.value(subject=shapeUri, predicate=sh.minExclusive)
+
+        if not (g.value(subject=shapeUri, predicate=sh.minInclusive) is None):
+            propertyShape.minInclusive = g.value(subject=shapeUri, predicate=sh.minInclusive)
+
+        if not (g.value(subject=shapeUri, predicate=sh.maxExclusive) is None):
+            propertyShape.maxExclusive = g.value(subject=shapeUri, predicate=sh.maxExclusive)
+
+        if not (g.value(subject=shapeUri, predicate=sh.maxInclusive) is None):
+            propertyShape.maxInclusive = g.value(subject=shapeUri, predicate=sh.maxInclusive)
+
+        if not (g.value(subject=shapeUri, predicate=sh.minLength) is None):
+            propertyShape.minLength = g.value(subject=shapeUri, predicate=sh.minLength)
+
+        if not (g.value(subject=shapeUri, predicate=sh.maxLength) is None):
+            propertyShape.maxLength = g.value(subject=shapeUri, predicate=sh.maxLength)
+
+        if not (g.value(subject=shapeUri, predicate=sh.pattern) is None):
+            propertyShape.pattern = g.value(subject=shapeUri, predicate=sh.pattern)
+
+        if not (g.value(subject=shapeUri, predicate=sh.flags) is None):
+            propertyShape.flags = g.value(subject=shapeUri, predicate=sh.flags)
+
+        if not (g.value(subject=shapeUri, predicate=sh.languageIn) is None):
+            languages = g.value(subject=shapeUri, predicate=sh.flags)
+            while (g.value(subject=languages, predicate=rdf.rest) != rdf.nil):
+                propertyShape.languageIn.append(g.value(subject=languages, predicate=rdf.first))
+                languages = g.value(subject=languages, predicate=rdf.rest)
+
+        if not (g.value(subject=shapeUri, predicate=sh.uniqueLang) is None):
+            propertyShape.uniqueLang = g.value(subject=shapeUri, predicate=sh.uniqueLang)
+
+        for stmt in g.objects(shapeUri, sh.equals):
+            propertyShape.equals.append(stmt)
+
+        for stmt in g.objects(shapeUri, sh.disjoint):
+            propertyShape.disjoint.append(stmt)
+
+        for stmt in g.objects(shapeUri, sh.lessThan):
+            propertyShape.lessThan.append(stmt)
+
+        for stmt in g.objects(shapeUri, sh.lessThanOrEquals):
+            propertyShape.lessThanOrEquals.append(stmt)
+
+        for stmt in g.objects(shapeUri, sh.node):
+            propertyShape.nodes.append(stmt)
+
+        for stmt in g.objects(shapeUri, sh.hasValue):
+            propertyShape.hasValue.append(stmt)
+
+        if not (g.value(subject=shapeUri, predicate=sh['in']) is None):
+            values = g.value(subject=shapeUri, predicate=sh['in'])
+            while (g.value(subject=values, predicate=rdf.rest) != rdf.nil):
+                propertyShape.shIn.append(g.value(subject=values, predicate=rdf.first))
+                values = g.value(subject=values, predicate=rdf.rest)
+
         return propertyShape
 
     def getPropertyPath(self, g, pathUri):

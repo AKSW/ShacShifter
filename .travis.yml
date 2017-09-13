@@ -1,0 +1,29 @@
+language: python
+python:
+    - "3.4"
+    - "3.5"
+    - "3.5-dev" # 3.5 development branch
+    - "3.6-dev" # 3.6 development branch
+    - "nightly" # currently points to 3.7-dev
+
+matrix:
+    allow_failures:
+        - python: nightly
+
+dist: trusty
+
+# command to install dependencies
+install:
+    - pip install -r requirements.txt
+    - pip install coveralls
+    - pip install pylama
+
+before_script:
+    - "pylama"
+
+# command to run tests
+script:
+    - coverage run -a --source=ShacShifter tests/test_parser.py
+
+after_success:
+    coveralls

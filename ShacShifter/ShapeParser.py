@@ -2,8 +2,9 @@
 
 import rdflib
 
+
 class ShapeParser:
-    def __init__ (self, inputFilePath):
+    def __init__(self, inputFilePath):
         g = rdflib.Graph()
         result = g.parse(inputFilePath, format='turtle')
         print(len(g))

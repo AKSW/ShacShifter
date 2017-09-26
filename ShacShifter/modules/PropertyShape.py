@@ -1,7 +1,7 @@
 class PropertyShape:
     #everything that has sh:path as predicate
     def __init__(self):
-        self.uri = '' #stays empty if its a blank node
+        self.uri = ''
         self.path = ''
         self.shClasses = []
         self.dataType = ''
@@ -22,9 +22,9 @@ class PropertyShape:
         self.lessThan = []
         self.lessThanOrEquals = []
         self.nodes = []
-        #self.qualifiedValueShape = [] #Not exactly sure how multiple qVS are possible with personal min/max counts in the same property
-        #self.qualifiedValueShapesDisjoint = False
-        #self.qualifiedMinCount = ''
-        #self.qualifiedMaxCount = ''
+        self.qualifiedValueShape = [] #Not exactly sure how multiple qVS are possible with personal min/max counts in the same property
+        self.qualifiedValueShapesDisjoint = False
+        self.qualifiedMinCount = ''
+        self.qualifiedMaxCount = ''
         self.hasValue = []
         self.shIn = []

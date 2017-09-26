@@ -18,32 +18,23 @@ class ShapeParser:
         for shapeUri in nodeShapeUris:
             nodeShape = self.parseNodeShape(g, shapeUri)
             nodeShapes[nodeShape.uri] = nodeShape
-        for uri, shape in nodeShapes.items():
-            print(uri)
-            print('targets:')
-            for target in (shape.targetClass + shape.targetNode + shape.targetSubjectsOf + shape.targetObjectsOf):
-                print(target)
-            print('nodeKind:')
-            print(shape.nodeKind)
-            for message in shape.message:
-                print(message.lang + ':' + message)
-            for property in shape.properties:
-                print(property.path)
-            print('-------------------------------------------------------------')
+        for shapeUri in propertyShapeUris:
+            propertyShape = self.parsePropertyShape(g, shapeUri)
+            propertyShapes[propertyShape.uri] = propertyShape
+
 
     def getNodeShapeUris(self, g):
 
         sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
         nodeShapeUris = []
-        #probably not a full list, as long as no Grammar exists, its probably staying incomplete
-        #shacl-shacl could be analyzed for that
         #ignores sh:or/and/not/xone for now, they can be in node and property shapes, and can contain both as shacl list
         for stmt in g.subjects(rdflib.RDF.type, sh.NodeShape):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(sh.property, None): #or/and/xor lists filtered, shouldnt be added here either way
-            if not(stmt in nodeShapeUris) and stmt != rdflib.term.BNode(stmt): #todo check for the Subject being the Object of a sh:property instead
+        #or/and/xor lists filtered, shouldnt be added here either way
+        for stmt in g.subjects(sh.property, None):
+            if not(stmt in nodeShapeUris) and not(g.value(predicate=sh.property, object=stmt)):
                 nodeShapeUris.append(stmt)
 
         for stmt in g.subjects(sh.targetClass, None):
@@ -67,9 +58,9 @@ class ShapeParser:
                 nodeShapeUris.append(stmt)
 
         #actually not exactly a nodeshape
-        for stmt in g.subjects(rdflib.RDF.type, sh.PropertyGroup):
-            if not(stmt in nodeShapeUris):
-                nodeShapeUris.append(stmt)
+        #for stmt in g.subjects(rdflib.RDF.type, sh.PropertyGroup):
+        #    if not(stmt in nodeShapeUris):
+        #        nodeShapeUris.append(stmt)
 
         return nodeShapeUris
 
@@ -96,11 +87,39 @@ class ShapeParser:
         if nodeKind != None:
             nodeShape.nodeKind = nodeKind
 
+        if not (g.value(subject=shapeUri, predicate=sh.ignoredProperties) is None):
+            properties = g.value(subject=shapeUri, predicate=sh.ignoredProperties)
+            while (g.value(subject=properties, predicate=rdf.rest) != rdf.nil):
+                propertyShape.ignoredProperties.append(g.value(subject=properties, predicate=rdf.first))
+                properties = g.value(subject=properties, predicate=rdf.rest)
+
         for stmt in g.objects(shapeUri, sh.message):
             if (stmt.lang == None):
                 nodeShape.message['general'] = stmt
             else:
                 nodeShape.message[stmt.lang] = stmt
+
+        if not (g.value(subject=shapeUri, predicate=sh.nodeKind) is None):
+            nodeShape.nodeKind = g.value(subject=shapeUri, predicate=sh.nodeKind)
+
+        if not (g.value(subject=shapeUri, predicate=sh.closed) is None):
+            nodeShape.closed = g.value(subject=shapeUri, predicate=sh.closed)
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShape) is None):
+            qvsUri = g.value(subject=shapeUri, predicate=sh.qualifiedValueShape)
+            propertyShape.qualifiedValueShape = self.parsePropertyShape(g, qvsUri)
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShapeDisjoint) is None):
+            propertyShape.qualifiedValueShapeDisjoint = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedValueShapeDisjoint
+            )
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMinCount) is None):
+            propertyShape.qualifiedMinCount = g.value(subject=shapeUri, predicate=sh.qualifiedMinCount)
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount) is None):
+            propertyShape.qualifiedMaxCount = g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount)
 
         for bn in g.objects(shapeUri, sh.property):
             propertyShape = self.parsePropertyShape(g, bn)

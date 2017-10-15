@@ -6,13 +6,5 @@
     
 ex:exampleShape
     a sh:NodeShape ;
-    sh:targetClass ex:Person;
-    sh:targetNode ex:Alice;
-    sh:targetObjectsOf ex:relationship;
-    sh:targetSubjectsOf ex:relationship;
-    sh:nodeKind sh:IRI;
-    sh:closed true ;
-    sh:ignoredProperties ( ex:A ex: B ) ;
-    sh:message "A"@en ,
-               "B"@de ,
-               "C";
+    sh:property [ sh:path ex:pathA ] ,
+                [ sh:path ex:pathB ] .

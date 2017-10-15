@@ -1,5 +1,4 @@
 class PropertyShape:
-    #everything that has sh:path as predicate
     def __init__(self):
         self.uri = ''
         self.path = ''
@@ -28,3 +27,8 @@ class PropertyShape:
         self.qualifiedMaxCount = ''
         self.hasValue = []
         self.shIn = []
+        self.order = 0
+        #self.sOr = []
+        #self.sNot = []
+        #self.sAnd = []
+        #self.sXone = []

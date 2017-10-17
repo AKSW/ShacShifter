@@ -154,7 +154,7 @@ class ShapeParser:
         propertyShape.path = self.getPropertyPath(g, pathStart)
 
         for stmt in g.objects(shapeUri, sh['class']):
-            propertyShape.classes.append(stmt)
+            propertyShape.shClasses.append(stmt)
 
         if not (g.value(subject=shapeUri, predicate=sh.datatype) is None):
             propertyShape.datatype = g.value(subject=shapeUri, predicate=sh.datatype)

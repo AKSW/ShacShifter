@@ -122,28 +122,6 @@ class ShapeParser:
             if (value == "true"):
                 nodeShape.closed = True
 
-        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShape) is None):
-            qvsUri = g.value(subject=shapeUri, predicate=sh.qualifiedValueShape)
-            propertyShape.qualifiedValueShape = self.parsePropertyShape(g, qvsUri)
-
-        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShapeDisjoint) is None):
-            propertyShape.qualifiedValueShapeDisjoint = g.value(
-                subject=shapeUri,
-                predicate=sh.qualifiedValueShapeDisjoint
-            )
-
-        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMinCount) is None):
-            propertyShape.qualifiedMinCount = g.value(
-                subject=shapeUri,
-                predicate=sh.qualifiedMinCount
-            )
-
-        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount) is None):
-            propertyShape.qualifiedMaxCount = g.value(
-                subject=shapeUri,
-                predicate=sh.qualifiedMaxCount
-            )
-
         for stmt in g.objects(shapeUri, sh.property):
             propertyShape = self.parsePropertyShape(g, stmt)
             nodeShape.properties.append(propertyShape)
@@ -160,10 +138,10 @@ class ShapeParser:
         propertyShape.path = self.getPropertyPath(g, pathStart)
 
         for stmt in g.objects(shapeUri, sh['class']):
-            propertyShape.shClasses.append(stmt)
+            propertyShape.classes.append(stmt)
 
         if not (g.value(subject=shapeUri, predicate=sh.datatype) is None):
-            propertyShape.datatype = g.value(subject=shapeUri, predicate=sh.datatype)
+            propertyShape.dataType = g.value(subject=shapeUri, predicate=sh.datatype)
 
         if not (g.value(subject=shapeUri, predicate=sh.minCount) is None):
             propertyShape.minCount = g.value(subject=shapeUri, predicate=sh.minCount)
@@ -196,17 +174,19 @@ class ShapeParser:
             propertyShape.flags = g.value(subject=shapeUri, predicate=sh.flags)
 
         if not (g.value(subject=shapeUri, predicate=sh.languageIn) is None):
-            languages = g.value(subject=shapeUri, predicate=sh.flags)
+            languages = g.value(subject=shapeUri, predicate=sh.languageIn)
             lastListEntry = False
             while not lastListEntry:
                 propertyShape.languageIn.append(g.value(subject=languages, predicate=rdf.first))
                 # check if this was the last entry in the list
-                if g.value(subject=languages, predicate=rdf.rest) != rdf.nil:
+                if g.value(subject=languages, predicate=rdf.rest) == rdf.nil:
                     lastListEntry = True
                 languages = g.value(subject=languages, predicate=rdf.rest)
 
         if not (g.value(subject=shapeUri, predicate=sh.uniqueLang) is None):
-            propertyShape.uniqueLang = g.value(subject=shapeUri, predicate=sh.uniqueLang)
+            uniqueLang = g.value(subject=shapeUri, predicate=sh.uniqueLang).lower()
+            if (uniqueLang == "true"):
+                propertyShape.uniqueLang = True
 
         for stmt in g.objects(shapeUri, sh.equals):
             propertyShape.equals.append(stmt)
@@ -232,12 +212,36 @@ class ShapeParser:
             while not lastListEntry:
                 propertyShape.shIn.append(g.value(subject=values, predicate=rdf.first))
                 # check if this was the last entry in the list
-                if g.value(subject=values, predicate=rdf.rest) != rdf.nil:
+                if g.value(subject=values, predicate=rdf.rest) == rdf.nil:
                     lastListEntry = True
                 values = g.value(subject=values, predicate=rdf.rest)
 
         if not (g.value(subject=shapeUri, predicate=sh.order) is None):
             propertyShape.order = g.value(subject=shapeUri, predicate=sh.order)
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShape) is None):
+            qvsUri = g.value(subject=shapeUri, predicate=sh.qualifiedValueShape)
+            propertyShape.qualifiedValueShape = self.parsePropertyShape(g, qvsUri)
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedValueShapeDisjoint) is None):
+            qualifiedValueShapeDisjoint = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedValueShapeDisjoint
+            ).lower()
+            if (qualifiedValueShapeDisjoint == "true"):
+                propertyShape.qualifiedValueShapeDisjoint = True
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMinCount) is None):
+            propertyShape.qualifiedMinCount = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedMinCount
+            )
+
+        if not (g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount) is None):
+            propertyShape.qualifiedMaxCount = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedMaxCount
+            )
 
         return propertyShape
 

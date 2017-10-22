@@ -2,7 +2,7 @@ class PropertyShape:
     def __init__(self):
         self.uri = ''
         self.path = ''
-        self.shClasses = []
+        self.classes = []
         self.dataType = ''
         self.minCount = ''
         self.maxCount = ''
@@ -21,7 +21,7 @@ class PropertyShape:
         self.lessThan = []
         self.lessThanOrEquals = []
         self.nodes = []
-        self.qualifiedValueShape = []
+        self.qualifiedValueShape = ''
         self.qualifiedValueShapesDisjoint = False
         self.qualifiedMinCount = ''
         self.qualifiedMaxCount = ''

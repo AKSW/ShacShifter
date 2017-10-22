@@ -59,6 +59,70 @@ class ShapeParserTests(unittest.TestCase):
             rdflib.term.URIRef('http://www.example.org/example/exampleShapeA')
         ]
 
+        self.assertEqual(str(propertyShape.uri), 'http://www.example.org/example/exampleShapeA')
+        self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathA')
+        classes = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShape.classes), classes)
+        self.assertEqual(
+            propertyShape.dataType,
+            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')
+        )
+        self.assertEqual(int(propertyShape.minCount), 1)
+        self.assertEqual(int(propertyShape.maxCount), 2)
+        self.assertEqual(int(propertyShape.minExclusive), 1)
+        self.assertEqual(int(propertyShape.maxExclusive), 1)
+        self.assertEqual(int(propertyShape.minInclusive), 1)
+        self.assertEqual(int(propertyShape.maxInclusive), 1)
+        self.assertEqual(int(propertyShape.minLength), 1)
+        self.assertEqual(int(propertyShape.maxLength), 2)
+        self.assertEqual(str(propertyShape.pattern), '[abc]')
+        self.assertEqual(str(propertyShape.flags), 'i')
+        languageIn = [
+            rdflib.term.Literal('de'),
+            rdflib.term.Literal('en')
+        ]
+        self.assertEqual(sorted(propertyShape.languageIn), languageIn)
+        self.assertEqual(propertyShape.uniqueLang, True)
+        equals = [
+            rdflib.term.URIRef('http://www.example.org/example/PathB'),
+            rdflib.term.URIRef('http://www.example.org/example/PathC')
+        ]
+        self.assertEqual(sorted(propertyShape.equals), equals)
+        disjoint = [
+            rdflib.term.URIRef('http://www.example.org/example/PathB'),
+            rdflib.term.URIRef('http://www.example.org/example/PathC')
+        ]
+        self.assertEqual(sorted(propertyShape.disjoint), disjoint)
+        lessThan = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShape.lessThan), lessThan)
+        lessThanOrEquals = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShape.lessThanOrEquals), lessThanOrEquals)
+        nodes = [
+            rdflib.term.URIRef('http://www.example.org/example/propertyShapeA'),
+            rdflib.term.URIRef('http://www.example.org/example/propertyShapeB')
+        ]
+        self.assertEqual(sorted(propertyShape.nodes), nodes)
+        qualifiedValueShape = [
+            rdflib.term.URIRef('http://www.example.org/example/friendship'),
+            rdflib.term.URIRef('http://www.example.org/example/relationship')
+        ]
+        self.assertEqual(
+            str(propertyShape.qualifiedValueShape.path),
+            'http://www.example.org/example/PathC'
+        )
+        self.assertEqual(propertyShape.qualifiedValueShapeDisjoint, True)
+        self.assertEqual(int(propertyShape.qualifiedMinCount), 1)
+        self.assertEqual(int(propertyShape.qualifiedMaxCount), 2)
+
 
 def main():
     unittest.main()

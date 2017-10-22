@@ -56,24 +56,24 @@ class ShapeParser:
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        #actually not exactly a nodeshape
-        #for stmt in g.subjects(rdflib.RDF.type, sh.PropertyGroup):
-        #    if not(stmt in nodeShapeUris):
-        #        nodeShapeUris.append(stmt)
+        # actually not exactly a nodeshape
+        # for stmt in g.subjects(rdflib.RDF.type, sh.PropertyGroup):
+        #     if not(stmt in nodeShapeUris):
+        #         nodeShapeUris.append(stmt)
 
         return nodeShapeUris
 
     def getPropertyShapeUris(self, g):
-        #filter all property shapes that arent nodeshape properties
-        #or used in sh:not,and,or,xor
+        # filter all property shapes that arent nodeshape properties
+        # or used in sh:not,and,or,xor
         rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
         sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
         propertyShapeUris = []
         for stmt in g.subjects(sh.path, None):
-            if (not(stmt in propertyShapeUris) 
-                and not(g.value(predicate=sh.property, object=stmt))
-                and not(g.value(predicate=rdf.first, object=stmt))
-                and not(g.value(predicate=sh['not'], object=stmt))):
+            if (not(stmt in propertyShapeUris)
+                    and not(g.value(predicate=sh.property, object=stmt))
+                    and not(g.value(predicate=rdf.first, object=stmt))
+                    and not(g.value(predicate=sh['not'], object=stmt))):
                 propertyShapeUris.append(stmt)
         return propertyShapeUris
 
@@ -95,7 +95,7 @@ class ShapeParser:
             nodeShape.targetSubjectsOf.append(stmt)
 
         nodeKind = g.value(subject=shapeUri, predicate=sh.nodeKind)
-        if nodeKind != None:
+        if nodeKind == (not None):
             nodeShape.nodeKind = nodeKind
 
         if not (g.value(subject=shapeUri, predicate=sh.ignoredProperties) is None):
@@ -103,13 +103,13 @@ class ShapeParser:
             lastListEntry = False
             while not lastListEntry:
                 nodeShape.ignoredProperties.append(g.value(subject=properties, predicate=rdf.first))
-                #check if this was the last entry in the list
+                # check if this was the last entry in the list
                 if g.value(subject=properties, predicate=rdf.rest) == rdf.nil:
                     lastListEntry = True
                 properties = g.value(subject=properties, predicate=rdf.rest)
 
         for stmt in g.objects(shapeUri, sh.message):
-            if (stmt.language == None):
+            if (stmt.language is None):
                 nodeShape.message['default'] = stmt
             else:
                 nodeShape.message[stmt.language] = stmt
@@ -133,10 +133,16 @@ class ShapeParser:
             )
 
         if not (g.value(subject=shapeUri, predicate=sh.qualifiedMinCount) is None):
-            propertyShape.qualifiedMinCount = g.value(subject=shapeUri, predicate=sh.qualifiedMinCount)
+            propertyShape.qualifiedMinCount = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedMinCount
+            )
 
         if not (g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount) is None):
-            propertyShape.qualifiedMaxCount = g.value(subject=shapeUri, predicate=sh.qualifiedMaxCount)
+            propertyShape.qualifiedMaxCount = g.value(
+                subject=shapeUri,
+                predicate=sh.qualifiedMaxCount
+            )
 
         for stmt in g.objects(shapeUri, sh.property):
             propertyShape = self.parsePropertyShape(g, stmt)
@@ -194,7 +200,7 @@ class ShapeParser:
             lastListEntry = False
             while not lastListEntry:
                 propertyShape.languageIn.append(g.value(subject=languages, predicate=rdf.first))
-                #check if this was the last entry in the list
+                # check if this was the last entry in the list
                 if g.value(subject=languages, predicate=rdf.rest) != rdf.nil:
                     lastListEntry = True
                 languages = g.value(subject=languages, predicate=rdf.rest)
@@ -225,7 +231,7 @@ class ShapeParser:
             lastListEntry = False
             while not lastListEntry:
                 propertyShape.shIn.append(g.value(subject=values, predicate=rdf.first))
-                #check if this was the last entry in the list
+                # check if this was the last entry in the list
                 if g.value(subject=values, predicate=rdf.rest) != rdf.nil:
                     lastListEntry = True
                 values = g.value(subject=values, predicate=rdf.rest)
@@ -238,7 +244,7 @@ class ShapeParser:
     def getPropertyPath(self, g, pathUri):
         rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
         sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
-        #not enforcing blank nodes here, but stripping the link nodes from the data structure
+        # not enforcing blank nodes here, but stripping the link nodes from the data structure
         if not (g.value(subject=pathUri, predicate=rdf.first) is None):
             newPathUri = g.value(subject=pathUri, predicate=rdf.first)
             rdfList = []
@@ -254,33 +260,31 @@ class ShapeParser:
 
         if not (g.value(subject=pathUri, predicate=sh.alternativePath) is None):
             newPathUri = g.value(subject=pathUri, predicate=sh.alternativePath)
-            rdfDict = {sh.alternativePath: self.getPropertyPath(g,newPathUri)}
+            rdfDict = {sh.alternativePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
         if not (g.value(subject=pathUri, predicate=sh.inversePath) is None):
             newPathUri = g.value(subject=pathUri, predicate=sh.inversePath)
-            rdfDict = {sh.inversePath: self.getPropertyPath(g,newPathUri)}
+            rdfDict = {sh.inversePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
         if not (g.value(subject=pathUri, predicate=sh.zeroOrMorePath) is None):
             newPathUri = g.value(subject=pathUri, predicate=sh.zeroOrMorePath)
-            rdfDict = {sh.zeroOrMorePath: self.getPropertyPath(g,newPathUri)}
+            rdfDict = {sh.zeroOrMorePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
         if not (g.value(subject=pathUri, predicate=sh.oneOrMorePath) is None):
             newPathUri = g.value(subject=pathUri, predicate=sh.oneOrMorePath)
-            rdfDict = {sh.oneOrMorePath: self.getPropertyPath(g,newPathUri)}
+            rdfDict = {sh.oneOrMorePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
         if not (g.value(subject=pathUri, predicate=sh.zeroOrOnePath) is None):
             newPathUri = g.value(subject=pathUri, predicate=sh.zeroOrOnePath)
-            rdfDict = {sh.zeroOrOnePath: self.getPropertyPath(g,newPathUri)}
+            rdfDict = {sh.zeroOrOnePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
-        #last Object in this Pathpart, check if its an Uri and return it
+        # last Object in this Pathpart, check if its an Uri and return it
         if pathUri == rdflib.term.URIRef(pathUri):
             return pathUri
         else:
             raise Exception('Object of sh:path is no URI')
-
-# class Shape:

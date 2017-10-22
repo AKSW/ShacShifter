@@ -10,7 +10,6 @@ from ShacShifter.modules.PropertyShape import PropertyShape
 
 class ShapeParserTests(unittest.TestCase):
 
-
     def setUp(self):
         self.parser = ShapeParser()
         self.dir = path.abspath('tests/_files')
@@ -56,10 +55,14 @@ class ShapeParserTests(unittest.TestCase):
     def testPositivePropertyShapeParse(self):
         shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample1.ttl')
         propertyShapes = shapes[1]
-        propertyShape = propertyShapes[rdflib.term.URIRef('http://www.example.org/example/exampleShapeA')]
+        propertyShape = propertyShapes[
+            rdflib.term.URIRef('http://www.example.org/example/exampleShapeA')
+        ]
+
 
 def main():
     unittest.main()
+
 
 if __name__ == '__main__':
     main()

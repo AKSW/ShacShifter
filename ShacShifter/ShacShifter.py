@@ -15,4 +15,5 @@ class ShacShifter:
 
     def shift(self, input, output, format):
         """Transform input to output with format."""
-        parser = ShapeParser(input)
+        parser = ShapeParser()
+        parser.parseShape(input)

@@ -1,0 +1,45 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://www.example.org/example/> .
+    
+ex:exampleShape
+    a sh:NodeShape ;
+    sh:property [
+        sh:path ex:PathA ;
+        sh:class ex:A ,
+                 ex:B ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 2 ;
+        sh:minExclusive 1 ;
+        sh:maxExclusive 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 2 ;
+        sh:pattern '[abc]' ;
+        sh:flags 'i' ;
+        sh:languageIn ( 'en' 'de' ) ;
+        sh:uniqueLang true ;
+        sh:equals ex:PathB ,
+                  ex:PathC ;
+        sh:disjoint ex:PathB ,
+                    ex:PathC ;
+        sh:lessThan ex:A ,
+                    ex:B ;
+        sh:lessThanOrEquals ex:A ,
+                            ex:B ;
+        sh:node ex:propertyShapeA ,
+                ex:propertyShapeB ;
+        sh:qualifiedValueShape [
+            sh:path ex:PathC 
+        ] ;
+        sh:qualifiedValueShapeDisjoint true ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 2 ;
+    ] ,
+                [ 
+            sh:path ex:PathB ;
+    ] .

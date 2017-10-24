@@ -1,5 +1,7 @@
 import argparse
 from .ShacShifter import ShacShifter
+from .modules.NodeShape import NodeShape
+from .modules.PropertyShape import PropertyShape
 
 
 def main(args=None):

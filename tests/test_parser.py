@@ -122,6 +122,84 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(propertyShape.qualifiedValueShapeDisjoint, True)
         self.assertEqual(int(propertyShape.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShape.qualifiedMaxCount), 2)
+        propertyShape = propertyShapes[
+            rdflib.term.URIRef('http://www.example.org/example/exampleShapeB')
+        ]
+        self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathB')
+
+    def testPositiveNodeShapePropertiesParse(self):
+        shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample2.ttl')
+        nodeShapes = shapes[0]
+        nodeShape = nodeShapes[
+            rdflib.term.URIRef('http://www.example.org/example/exampleShape')
+        ]
+        for shape in nodeShape.properties:
+            if str(shape.path) == 'http://www.example.org/example/PathA':
+                propertyShapeA = shape
+            else:
+                propertyShapeB = shape
+        classes = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShapeA.classes), classes)
+        self.assertEqual(
+            propertyShapeA.dataType,
+            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')
+        )
+        self.assertEqual(int(propertyShapeA.minCount), 1)
+        self.assertEqual(int(propertyShapeA.maxCount), 2)
+        self.assertEqual(int(propertyShapeA.minExclusive), 1)
+        self.assertEqual(int(propertyShapeA.maxExclusive), 1)
+        self.assertEqual(int(propertyShapeA.minInclusive), 1)
+        self.assertEqual(int(propertyShapeA.maxInclusive), 1)
+        self.assertEqual(int(propertyShapeA.minLength), 1)
+        self.assertEqual(int(propertyShapeA.maxLength), 2)
+        self.assertEqual(str(propertyShapeA.pattern), '[abc]')
+        self.assertEqual(str(propertyShapeA.flags), 'i')
+        languageIn = [
+            rdflib.term.Literal('de'),
+            rdflib.term.Literal('en')
+        ]
+        self.assertEqual(sorted(propertyShapeA.languageIn), languageIn)
+        self.assertEqual(propertyShapeA.uniqueLang, True)
+        equals = [
+            rdflib.term.URIRef('http://www.example.org/example/PathB'),
+            rdflib.term.URIRef('http://www.example.org/example/PathC')
+        ]
+        self.assertEqual(sorted(propertyShapeA.equals), equals)
+        disjoint = [
+            rdflib.term.URIRef('http://www.example.org/example/PathB'),
+            rdflib.term.URIRef('http://www.example.org/example/PathC')
+        ]
+        self.assertEqual(sorted(propertyShapeA.disjoint), disjoint)
+        lessThan = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShapeA.lessThan), lessThan)
+        lessThanOrEquals = [
+            rdflib.term.URIRef('http://www.example.org/example/A'),
+            rdflib.term.URIRef('http://www.example.org/example/B')
+        ]
+        self.assertEqual(sorted(propertyShapeA.lessThanOrEquals), lessThanOrEquals)
+        nodes = [
+            rdflib.term.URIRef('http://www.example.org/example/propertyShapeA'),
+            rdflib.term.URIRef('http://www.example.org/example/propertyShapeB')
+        ]
+        self.assertEqual(sorted(propertyShapeA.nodes), nodes)
+        qualifiedValueShape = [
+            rdflib.term.URIRef('http://www.example.org/example/friendship'),
+            rdflib.term.URIRef('http://www.example.org/example/relationship')
+        ]
+        self.assertEqual(
+            str(propertyShapeA.qualifiedValueShape.path),
+            'http://www.example.org/example/PathC'
+        )
+        self.assertEqual(propertyShapeA.qualifiedValueShapeDisjoint, True)
+        self.assertEqual(int(propertyShapeA.qualifiedMinCount), 1)
+        self.assertEqual(int(propertyShapeA.qualifiedMaxCount), 2)
+        self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/example/PathB')
 
 
 def main():

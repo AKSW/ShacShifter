@@ -10,7 +10,7 @@ ex:exampleShape
         sh:path ex:PathA ;
         sh:class ex:A ,
                  ex:B ;
-        sh:dataType xsd:integer ;
+        sh:datatype xsd:integer ;
         sh:minCount 1 ;
         sh:maxCount 2 ;
         sh:minExclusive 1 ;
@@ -34,9 +34,12 @@ ex:exampleShape
         sh:node ex:propertyShapeA ,
                 ex:propertyShapeB ;
         sh:qualifiedValueShape [
-            sh:path ex:PathC
-        ].
+            sh:path ex:PathC 
+        ] ;
+        sh:qualifiedValueShapeDisjoint true ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 2 ;
     ] ,
                 [ 
-            sh:path ex:pathB
+            sh:path ex:PathB ;
     ] .

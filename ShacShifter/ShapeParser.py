@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import rdflib
-import argparse
-import rdfextras
 from .modules.NodeShape import NodeShape
 from .modules.PropertyShape import PropertyShape
 
@@ -38,7 +36,7 @@ class ShapeParser:
         return [nodeShapes, propertyShapes]
 
     def getNodeShapeUris(self, g):
-        """Get URIs of all Node shapes
+        """Get URIs of all Node shapes.
 
         args: graph g
         returns: list of Node Shape URIs
@@ -132,7 +130,7 @@ class ShapeParser:
 
             while not lastListEntry:
                 nodeShape.ignoredProperties.append(
-                    str(g.value(subject=properties, predicate=rdf.first))
+                    str(g.value(subject=properties, predicate=self.rdf.first))
                 )
                 # check if this was the last entry in the list
                 if g.value(subject=properties, predicate=self.rdf.rest) == self.rdf.nil:
@@ -178,13 +176,13 @@ class ShapeParser:
         pathStart = g.value(subject=shapeUri, predicate=self.sh.path)
         propertyShape.path = self.getPropertyPath(g, pathStart)
 
-        for stmt in g.objects(shapeUri, sh['class']):
+        for stmt in g.objects(shapeUri, self.sh['class']):
             propertyShape.isSet['classes'] = True
             propertyShape.classes.append(str(stmt))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.datatype) is None):
             propertyShape.isSet['dataType'] = True
-            propertyShape.dataType = g.value(subject=shapeUri, predicate=self.sh.datatype)
+            propertyShape.dataType = str(g.value(subject=shapeUri, predicate=self.sh.datatype))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.minCount) is None):
             propertyShape.isSet['minCount'] = True
@@ -233,7 +231,7 @@ class ShapeParser:
 
             while not lastListEntry:
                 propertyShape.languageIn.append(
-                    str(g.value(subject=languages, predicate=rdf.first))
+                    str(g.value(subject=languages, predicate=self.rdf.first))
                 )
                 # check if this was the last entry in the list
                 if g.value(subject=languages, predicate=self.rdf.rest) == self.rdf.nil:
@@ -270,9 +268,9 @@ class ShapeParser:
             propertyShape.isSet['hasValue'] = True
             propertyShape.hasValue.append(stmt)
 
-        if not (g.value(subject=shapeUri, predicate=sh['in']) is None):
+        if not (g.value(subject=shapeUri, predicate=self.sh['in']) is None):
             propertyShape.isSet['shIn'] = True
-            values = g.value(subject=shapeUri, predicate=sh['in'])
+            values = g.value(subject=shapeUri, predicate=self.sh['in'])
             lastListEntry = False
 
             while not lastListEntry:
@@ -280,7 +278,7 @@ class ShapeParser:
                 # check if this was the last entry in the list
                 if g.value(subject=values, predicate=self.rdf.rest) == self.rdf.nil:
                     lastListEntry = True
-                values = str(g.value(subject=values, predicate=rdf.rest))
+                values = str(g.value(subject=values, predicate=self.rdf.rest))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.order) is None):
             propertyShape.isSet['order'] = True
@@ -317,9 +315,9 @@ class ShapeParser:
         for stmt in g.objects(shapeUri, self.sh.message):
             propertyShape.isSet['message'] = True
             if (stmt.language is None):
-                nodeShape.message['default'] = str(stmt)
+                propertyShape.message['default'] = str(stmt)
             else:
-                nodeShape.message[stmt.language] = str(stmt)
+                propertyShape.message[stmt.language] = str(stmt)
 
         return propertyShape
 

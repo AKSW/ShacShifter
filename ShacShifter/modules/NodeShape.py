@@ -17,3 +17,8 @@ class NodeShape:
         # self.sXone = []
         self.message = {}
         self.severity = -1
+        isSet = {}
+        for var in vars(self):
+            if not var.startswith('__'):
+                isSet[var] = False
+        self.isSet = isSet

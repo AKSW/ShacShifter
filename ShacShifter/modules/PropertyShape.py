@@ -6,14 +6,14 @@ class PropertyShape:
         self.path = ''
         self.classes = []
         self.dataType = ''
-        self.minCount = ''
-        self.maxCount = ''
-        self.minExclusive = ''
-        self.minInclusive = ''
-        self.maxExclusive = ''
-        self.MaxInclusive = ''
-        self.minLength = ''
-        self.maxLength = ''
+        self.minCount = -1
+        self.maxCount = -1
+        self.minExclusive = -1
+        self.minInclusive = -1
+        self.maxExclusive = -1
+        self.MaxInclusive = -1
+        self.minLength = -1
+        self.maxLength = -1
         self.pattern = ''
         self.flags = ''
         self.languageIn = []
@@ -25,12 +25,18 @@ class PropertyShape:
         self.nodes = []
         self.qualifiedValueShape = ''
         self.qualifiedValueShapesDisjoint = False
-        self.qualifiedMinCount = ''
-        self.qualifiedMaxCount = ''
+        self.qualifiedMinCount = -1
+        self.qualifiedMaxCount = -1
         self.hasValue = []
         self.shIn = []
-        self.order = 0
+        self.order = -1
+        self.message = {}
         # self.sOr = []
         # self.sNot = []
         # self.sAnd = []
         # self.sXone = []
+        isSet = {}
+        for var in vars(self):
+            if not var.startswith('__'):
+                isSet[var] = False
+        self.isSet = isSet

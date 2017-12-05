@@ -1,5 +1,6 @@
 import argparse
 from .ShacShifter import ShacShifter
+from .ExampleHTMLWriter import ExampleHTMLWriter
 from .modules.NodeShape import NodeShape
 from .modules.PropertyShape import PropertyShape
 
@@ -11,11 +12,15 @@ def main(args=None):
     parser.add_argument('-o', '--output', type=str, help="The output file")
     parser.add_argument('-f', '--format', type=str, choices=[
         'rdforms',
-        'wisski'
+        'wisski',
+        'html'
     ], help="The output format")
 
     args = parser.parse_args()
 
-    shifter = ShacShifter()
-    print('Das hab ich:', args.shacl, args.output, args.format)
-    shifter.shift(args.shacl, args.output, args.format)
+    if arg.format == html:
+        writer = ExampleHTMLWriter()
+    else:
+        shifter = ShacShifter()
+        print('Das hab ich:', args.shacl, args.output, args.format)
+        shifter.shift(args.shacl, args.output, args.format)

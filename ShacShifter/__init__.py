@@ -1,8 +1,5 @@
 import argparse
 from .ShacShifter import ShacShifter
-from .ExampleHTMLWriter import ExampleHTMLWriter
-from .modules.NodeShape import NodeShape
-from .modules.PropertyShape import PropertyShape
 
 
 def main(args=None):
@@ -18,9 +15,6 @@ def main(args=None):
 
     args = parser.parse_args()
 
-    if arg.format == html:
-        writer = ExampleHTMLWriter()
-    else:
-        shifter = ShacShifter()
-        print('Das hab ich:', args.shacl, args.output, args.format)
-        shifter.shift(args.shacl, args.output, args.format)
+    shifter = ShacShifter()
+    print('Das hab ich:', args.shacl, args.output, args.format)
+    shifter.shift(args.shacl, args.output, args.format)

@@ -5,7 +5,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')))
 
-import argparse
+from .ExampleHTMLWriter import ExampleHTMLWriter
+
 from ShacShifter.ShapeParser import ShapeParser
 # from RDFormsWriter import RDFormsWriter
 
@@ -16,4 +17,11 @@ class ShacShifter:
     def shift(self, input, output, format):
         """Transform input to output with format."""
         parser = ShapeParser()
-        parser.parseShape(input)
+        parseResult = parser.parseShape(input)
+
+        if (format == "html"):
+            writer = ExampleHTMLWriter()
+        else:
+            writer = None
+
+        writer.write(parseResult, output)

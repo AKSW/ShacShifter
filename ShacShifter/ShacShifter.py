@@ -5,10 +5,9 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')))
 
-from .ExampleHTMLWriter import ExampleHTMLWriter
-
+from ShacShifter.ExampleHTMLWriter import ExampleHTMLWriter
+from ShacShifter.RDFormsWriter import RDFormsWriter
 from ShacShifter.ShapeParser import ShapeParser
-# from RDFormsWriter import RDFormsWriter
 
 
 class ShacShifter:
@@ -18,10 +17,10 @@ class ShacShifter:
         """Transform input to output with format."""
         parser = ShapeParser()
         parseResult = parser.parseShape(input)
-
         if (format == "html"):
             writer = ExampleHTMLWriter()
+        elif (format == "rdforms"):
+            writer = RDFormsWriter()
         else:
             writer = None
-
         writer.write(parseResult, output)

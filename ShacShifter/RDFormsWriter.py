@@ -7,11 +7,13 @@ import logging
 # example class for
 class RDFormsWriter:
 
-    def __init__(self):
+    def write(self, shapes, output):
         self.logger = logging.getLogger()
-        fp = open('rdformsExample.json', 'w')
-        parser = ShapeParser()
-        shapes = parser.parseShape('/home/shino/Documents/example.ttl')
+        try:
+            fp = open(output, 'w')
+        except OSError:
+            print("Couldn't write to output location")
+            return
         nodeShapes = shapes[0]
         for nodeShape in nodeShapes:
             self.exampleNodeShapeEvaluation(nodeShapes[nodeShape], fp)
@@ -19,14 +21,14 @@ class RDFormsWriter:
 
     def exampleNodeShapeEvaluation(self, nodeShape, fp):
         fp.write('{\n')
-        self.loggger.warning(
+        self.logger.warning(
             'No real "Label" for Nodeshapes -> add rdfs:label as option? otherwise check message?'
             )
         fp.write('"label":{')
         if nodeShape.isSet['message']:
             for lang, message in nodeShape.message.items():
                 labels += ('"' + lang + '":"' + message + '", ')
-        fp.write(labels[0:-3] + '},\n')
+            fp.write(labels[0:-3] + '},\n')
         fp.write('"root":"' + nodeShape.uri + '",')
         self.logger.warning(
             'description just like label has no correct'
@@ -41,10 +43,12 @@ class RDFormsWriter:
             + ' arent useful for forms either')
         fp.write('"templates":[\n')
         for property in nodeShape.properties:
+            propertyString = ''
             propertyString += ('{\n' + self.examplePropertyShapeEvaluation(property) + '\n},')
         fp.write(propertyString[0:-3] + ']\n}')
 
     def examplePropertyShapeEvaluation(self, propertyShape):
+        self.logger.warning('test')
         if isinstance(propertyShape.path, dict):
             self.logger.warning('Complex path saves as Dictionary(unsure how to exactly use it):')
         else:
@@ -69,39 +73,42 @@ class RDFormsWriter:
                 else:
                     choiceItem += ' "max": 1}\n'
                 choiceItem += 'choices: [{\n' + '"value: "' + propertyShape.path + '",\n'
-                self.logger.warning('choices and single choice items have labels and descriptions again')
+                self.logger.warning(
+                    'choices and single choice items have labels and descriptions again'
+                )
                 choiceItem += '"children":[\n'
-                for index in range(0, len(propertyShape.shIn))
+                for index in range(0, len(propertyShape.shIn)):
                     choiceItem += '{"_reference: "' + propertyShape.shIn[index] + '"}'
                     choices += '{"value": "' + propertyShape.shIn[index] + '"},\n'
                     choices += '{"label": "' + propertyShape.shIn[index] + '"}\n}'
-                    if index != len(propertyShape.shIn -1):
+                    if index != len(propertyShape.shIn - 1):
                         choiceItem += ',\n'
                         choices += ','
 
                 choiceItem += ']\n},'
                 choiceItem += choices + '\n]'
+                return choiceItem
             else:
                 # text type
-                pass
+                return ''
 
 # x = RDFormsWriter()
 
-choices: [{
-        "top":true,
-        "value": "http://example.com/instanceTop",
-        "selectable": false,
-        "label": {"sv": "Toppen", "en":"Ze top!"},
-        "children":[
-            {"_reference": "http://example.com/instance1"},
-            {"_reference": "http://example.com/instance2"}
-        ]
-    },{
-        "value": "http://example.com/instance1",
-        "label": {"sv": "Matematik", "en":"Mathematics"},
-        "description": {"sv": "Matematik är ett coolt ämne", "en":"Mathematics is a cool subject"}
-    },{
-        "value": "http://example.com/instance2",
-        "label": {"sv": "Kemi", "en":"Chemistry"}
-    }
-]
+# choices: [{
+#         "top":true,
+#         "value": "http://example.com/instanceTop",
+#         "selectable": false,
+#         "label": {"sv": "Toppen", "en":"Ze top!"},
+#         "children":[
+#             {"_reference": "http://example.com/instance1"},
+#             {"_reference": "http://example.com/instance2"}
+#         ]
+#     },{
+#         "value": "http://example.com/instance1",
+#         "label": {"sv": "Matematik", "en":"Mathematics"},
+#         "description": {"sv": "Matematik är ett coolt ämne", "en":"Mathematics is a cool subject"}
+#     },{
+#         "value": "http://example.com/instance2",
+#         "label": {"sv": "Kemi", "en":"Chemistry"}
+#     }
+# ]

@@ -1,4 +1,6 @@
 class NodeShape:
+    """The NodeShape class."""
+
     def __init__(self):
         self.uri = ''
         self.targetClass = []

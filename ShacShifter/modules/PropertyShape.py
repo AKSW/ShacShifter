@@ -1,4 +1,6 @@
 class PropertyShape:
+    """The PropertyShape class."""
+
     def __init__(self):
         self.uri = ''
         self.path = ''

@@ -18,24 +18,24 @@ class ShapeParserTests(unittest.TestCase):
     def testPositiveNodeShapeParse(self):
         shapes = self.parser.parseShape(self.dir + '/positiveNodeShapeParserExample1.ttl')
         nodeShapes = shapes[0]
-        nodeShape = nodeShapes[rdflib.term.URIRef('http://www.example.org/example/exampleShape')]
+        nodeShape = nodeShapes[('http://www.example.org/example/exampleShape')]
         self.assertEqual(str(nodeShape.uri), 'http://www.example.org/example/exampleShape')
 
         targetClasses = [
-            rdflib.term.URIRef('http://www.example.org/example/Animal'),
-            rdflib.term.URIRef('http://www.example.org/example/Person')
+            'http://www.example.org/example/Animal',
+            'http://www.example.org/example/Person'
         ]
         self.assertEqual(sorted(nodeShape.targetClass), targetClasses)
 
         targetNodes = [
-            rdflib.term.URIRef('http://www.example.org/example/Alice'),
-            rdflib.term.URIRef('http://www.example.org/example/Bob')
+            'http://www.example.org/example/Alice',
+            'http://www.example.org/example/Bob'
         ]
         self.assertEqual(sorted(nodeShape.targetNode), targetNodes)
 
         relationships = [
-            rdflib.term.URIRef('http://www.example.org/example/friendship'),
-            rdflib.term.URIRef('http://www.example.org/example/relationship')
+            'http://www.example.org/example/friendship',
+            'http://www.example.org/example/relationship'
         ]
         self.assertEqual(sorted(nodeShape.targetObjectsOf), relationships)
         self.assertEqual(sorted(nodeShape.targetSubjectsOf), relationships)
@@ -43,9 +43,9 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(nodeShape.closed, True)
 
         ignoredProperties = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B'),
-            rdflib.term.URIRef('http://www.example.org/example/C')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B',
+            'http://www.example.org/example/C'
         ]
         self.assertEqual(sorted(nodeShape.ignoredProperties), ignoredProperties)
         self.assertEqual(str(nodeShape.message['default']), "C")
@@ -57,20 +57,20 @@ class ShapeParserTests(unittest.TestCase):
         shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample1.ttl')
         propertyShapes = shapes[1]
         propertyShape = propertyShapes[
-            rdflib.term.URIRef('http://www.example.org/example/exampleShapeA')
+            'http://www.example.org/example/exampleShapeA'
         ]
 
         self.assertEqual(str(propertyShape.uri), 'http://www.example.org/example/exampleShapeA')
         self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathA')
 
         classes = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShape.classes), classes)
         self.assertEqual(
             propertyShape.dataType,
-            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')
+            'http://www.w3.org/2001/XMLSchema#integer'
         )
         self.assertEqual(int(propertyShape.minCount), 1)
         self.assertEqual(int(propertyShape.maxCount), 2)
@@ -84,44 +84,44 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(str(propertyShape.flags), 'i')
 
         languageIn = [
-            rdflib.term.Literal('de'),
-            rdflib.term.Literal('en')
+            'de',
+            'en'
         ]
         self.assertEqual(sorted(propertyShape.languageIn), languageIn)
         self.assertEqual(propertyShape.uniqueLang, True)
 
         equals = [
-            rdflib.term.URIRef('http://www.example.org/example/PathB'),
-            rdflib.term.URIRef('http://www.example.org/example/PathC')
+            'http://www.example.org/example/PathB',
+            'http://www.example.org/example/PathC'
         ]
         self.assertEqual(sorted(propertyShape.equals), equals)
 
         disjoint = [
-            rdflib.term.URIRef('http://www.example.org/example/PathB'),
-            rdflib.term.URIRef('http://www.example.org/example/PathC')
+            'http://www.example.org/example/PathB',
+            'http://www.example.org/example/PathC'
         ]
         self.assertEqual(sorted(propertyShape.disjoint), disjoint)
 
         lessThan = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShape.lessThan), lessThan)
         lessThanOrEquals = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShape.lessThanOrEquals), lessThanOrEquals)
 
         nodes = [
-            rdflib.term.URIRef('http://www.example.org/example/propertyShapeA'),
-            rdflib.term.URIRef('http://www.example.org/example/propertyShapeB')
+            'http://www.example.org/example/propertyShapeA',
+            'http://www.example.org/example/propertyShapeB'
         ]
         self.assertEqual(sorted(propertyShape.nodes), nodes)
 
         qualifiedValueShape = [
-            rdflib.term.URIRef('http://www.example.org/example/friendship'),
-            rdflib.term.URIRef('http://www.example.org/example/relationship')
+            'http://www.example.org/example/friendship',
+            'http://www.example.org/example/relationship'
         ]
         self.assertEqual(
             str(propertyShape.qualifiedValueShape.path),
@@ -132,7 +132,7 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(int(propertyShape.qualifiedMaxCount), 2)
 
         propertyShape = propertyShapes[
-            rdflib.term.URIRef('http://www.example.org/example/exampleShapeB')
+            'http://www.example.org/example/exampleShapeB'
         ]
         self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathB')
 
@@ -140,7 +140,7 @@ class ShapeParserTests(unittest.TestCase):
         shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample2.ttl')
         nodeShapes = shapes[0]
         nodeShape = nodeShapes[
-            rdflib.term.URIRef('http://www.example.org/example/exampleShape')
+            'http://www.example.org/example/exampleShape'
         ]
 
         for shape in nodeShape.properties:
@@ -150,13 +150,13 @@ class ShapeParserTests(unittest.TestCase):
                 propertyShapeB = shape
 
         classes = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShapeA.classes), classes)
         self.assertEqual(
             propertyShapeA.dataType,
-            rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')
+            'http://www.w3.org/2001/XMLSchema#integer'
         )
         self.assertEqual(int(propertyShapeA.minCount), 1)
         self.assertEqual(int(propertyShapeA.maxCount), 2)
@@ -170,45 +170,45 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(str(propertyShapeA.flags), 'i')
 
         languageIn = [
-            rdflib.term.Literal('de'),
-            rdflib.term.Literal('en')
+            'de',
+            'en'
         ]
         self.assertEqual(sorted(propertyShapeA.languageIn), languageIn)
         self.assertEqual(propertyShapeA.uniqueLang, True)
 
         equals = [
-            rdflib.term.URIRef('http://www.example.org/example/PathB'),
-            rdflib.term.URIRef('http://www.example.org/example/PathC')
+            'http://www.example.org/example/PathB',
+            'http://www.example.org/example/PathC'
         ]
         self.assertEqual(sorted(propertyShapeA.equals), equals)
 
         disjoint = [
-            rdflib.term.URIRef('http://www.example.org/example/PathB'),
-            rdflib.term.URIRef('http://www.example.org/example/PathC')
+            'http://www.example.org/example/PathB',
+            'http://www.example.org/example/PathC'
         ]
         self.assertEqual(sorted(propertyShapeA.disjoint), disjoint)
 
         lessThan = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShapeA.lessThan), lessThan)
 
         lessThanOrEquals = [
-            rdflib.term.URIRef('http://www.example.org/example/A'),
-            rdflib.term.URIRef('http://www.example.org/example/B')
+            'http://www.example.org/example/A',
+            'http://www.example.org/example/B'
         ]
         self.assertEqual(sorted(propertyShapeA.lessThanOrEquals), lessThanOrEquals)
 
         nodes = [
-            rdflib.term.URIRef('http://www.example.org/example/propertyShapeA'),
-            rdflib.term.URIRef('http://www.example.org/example/propertyShapeB')
+            'http://www.example.org/example/propertyShapeA',
+            'http://www.example.org/example/propertyShapeB'
         ]
         self.assertEqual(sorted(propertyShapeA.nodes), nodes)
 
         qualifiedValueShape = [
-            rdflib.term.URIRef('http://www.example.org/example/friendship'),
-            rdflib.term.URIRef('http://www.example.org/example/relationship')
+            'http://www.example.org/example/friendship',
+            'http://www.example.org/example/relationship'
         ]
         self.assertEqual(
             str(propertyShapeA.qualifiedValueShape.path),

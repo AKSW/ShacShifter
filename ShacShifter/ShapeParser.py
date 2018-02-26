@@ -194,19 +194,23 @@ class ShapeParser:
 
         if not (g.value(subject=shapeUri, predicate=self.sh.minExclusive) is None):
             propertyShape.isSet['minExclusive'] = True
-            propertyShape.minExclusive = int(g.value(subject=shapeUri, predicate=self.sh.minExclusive))
+            propertyShape.minExclusive = int(
+                g.value(subject=shapeUri, predicate=self.sh.minExclusive))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.minInclusive) is None):
             propertyShape.isSet['minInclusive'] = True
-            propertyShape.minInclusive = int(g.value(subject=shapeUri, predicate=self.sh.minInclusive))
+            propertyShape.minInclusive = int(
+                g.value(subject=shapeUri, predicate=self.sh.minInclusive))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.maxExclusive) is None):
             propertyShape.isSet['maxExclusive'] = True
-            propertyShape.maxExclusive = int(g.value(subject=shapeUri, predicate=self.sh.maxExclusive))
+            propertyShape.maxExclusive = int(
+                g.value(subject=shapeUri, predicate=self.sh.maxExclusive))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.maxInclusive) is None):
             propertyShape.isSet['maxInclusive'] = True
-            propertyShape.maxInclusive = int(g.value(subject=shapeUri, predicate=self.sh.maxInclusive))
+            propertyShape.maxInclusive = int(
+                g.value(subject=shapeUri, predicate=self.sh.maxInclusive))
 
         if not (g.value(subject=shapeUri, predicate=self.sh.minLength) is None):
             propertyShape.isSet['minLength'] = True

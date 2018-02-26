@@ -43,36 +43,36 @@ class ShapeParser:
         """
         nodeShapeUris = []
 
-        for stmt in g.subjects(rdflib.RDF.type, self.self.sh.NodeShape):
+        for stmt in g.subjects(rdflib.RDF.type, self.sh.NodeShape):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.property, None):
+        for stmt in g.subjects(self.sh.property, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.targetClass, None):
+        for stmt in g.subjects(self.sh.targetClass, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.targetNode, None):
+        for stmt in g.subjects(self.sh.targetNode, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.targetObjectsOf, None):
+        for stmt in g.subjects(self.sh.targetObjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.targetSubjectsOf, None):
+        for stmt in g.subjects(self.sh.targetSubjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
-        for stmt in g.subjects(self.self.sh.targetSubjectsOf, None):
+        for stmt in g.subjects(self.sh.targetSubjectsOf, None):
             if not(stmt in nodeShapeUris):
                 nodeShapeUris.append(stmt)
 
         # actually not exactly a nodeshape
-        # for stmt in g.subjects(rdflib.RDF.type, self.self.sh.PropertyGroup):
+        # for stmt in g.subjects(rdflib.RDF.type, self.sh.PropertyGroup):
         #     if not(stmt in nodeShapeUris):
         #         nodeShapeUris.append(stmt)
 
@@ -89,9 +89,9 @@ class ShapeParser:
         """
         propertyShapeUris = []
 
-        for stmt in g.subjects(self.self.sh.path, None):
+        for stmt in g.subjects(self.sh.path, None):
             if (not(stmt in propertyShapeUris)
-                    and not(g.value(predicate=self.self.sh.property, object=stmt))
+                    and not(g.value(predicate=self.sh.property, object=stmt))
                     and not(g.value(predicate=self.rdf.first, object=stmt))
                     and not(g.value(predicate=self.sh['not'], object=stmt))):
                 propertyShapeUris.append(stmt)
@@ -338,29 +338,29 @@ class ShapeParser:
 
             return rdfList
 
-        if not (g.value(subject=pathUri, predicate=self.self.sh.alternativePath) is None):
-            newPathUri = g.value(subject=pathUri, predicate=self.self.sh.alternativePath)
-            rdfDict = {self.self.sh.alternativePath: self.getPropertyPath(g, newPathUri)}
+        if not (g.value(subject=pathUri, predicate=self.sh.alternativePath) is None):
+            newPathUri = g.value(subject=pathUri, predicate=self.sh.alternativePath)
+            rdfDict = {self.sh.alternativePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
-        if not (g.value(subject=pathUri, predicate=self.self.sh.inversePath) is None):
-            newPathUri = g.value(subject=pathUri, predicate=self.self.sh.inversePath)
-            rdfDict = {self.self.sh.inversePath: self.getPropertyPath(g, newPathUri)}
+        if not (g.value(subject=pathUri, predicate=self.sh.inversePath) is None):
+            newPathUri = g.value(subject=pathUri, predicate=self.sh.inversePath)
+            rdfDict = {self.sh.inversePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
-        if not (g.value(subject=pathUri, predicate=self.self.sh.zeroOrMorePath) is None):
-            newPathUri = g.value(subject=pathUri, predicate=self.self.sh.zeroOrMorePath)
-            rdfDict = {self.self.sh.zeroOrMorePath: self.getPropertyPath(g, newPathUri)}
+        if not (g.value(subject=pathUri, predicate=self.sh.zeroOrMorePath) is None):
+            newPathUri = g.value(subject=pathUri, predicate=self.sh.zeroOrMorePath)
+            rdfDict = {self.sh.zeroOrMorePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
-        if not (g.value(subject=pathUri, predicate=self.self.sh.oneOrMorePath) is None):
-            newPathUri = g.value(subject=pathUri, predicate=self.self.sh.oneOrMorePath)
-            rdfDict = {self.self.sh.oneOrMorePath: self.getPropertyPath(g, newPathUri)}
+        if not (g.value(subject=pathUri, predicate=self.sh.oneOrMorePath) is None):
+            newPathUri = g.value(subject=pathUri, predicate=self.sh.oneOrMorePath)
+            rdfDict = {self.sh.oneOrMorePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
-        if not (g.value(subject=pathUri, predicate=self.self.sh.zeroOrOnePath) is None):
-            newPathUri = g.value(subject=pathUri, predicate=self.self.sh.zeroOrOnePath)
-            rdfDict = {self.self.sh.zeroOrOnePath: self.getPropertyPath(g, newPathUri)}
+        if not (g.value(subject=pathUri, predicate=self.sh.zeroOrOnePath) is None):
+            newPathUri = g.value(subject=pathUri, predicate=self.sh.zeroOrOnePath)
+            rdfDict = {self.sh.zeroOrOnePath: self.getPropertyPath(g, newPathUri)}
             return rdfDict
 
         # last Object in this Pathpart, check if its an Uri and return it

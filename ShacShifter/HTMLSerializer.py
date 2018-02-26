@@ -5,61 +5,75 @@ import logging
 
 
 # example class for
-class ExampleHTMLWriter:
+class HTMLSerializer:
+    """A Serializer that writes HTML."""
 
-    def __init__(self):
-        self.logger = logging.getLogger()
-        fp = open('testhtml.html', 'w')
-        fp.write('<html> <body>\n')
-        parser = ShapeParser()
-        shapes = parser.parseShape('/home/shino/Documents/example.ttl')
+    logger = logging.getLogger('ShacShifter.HTMLSerializer')
+    content = []
+    outputfile = ''
+
+    def __init__(self, shapes, outputfile):
+        try:
+            fp = open(outputfile, 'w')
+            self.outputfile = outputfile
+            fp.close
+        except Exception:
+            raise Exception('Can''t write to file {}'.format(outputfile))
+
+        self.content.append('<html> <body>\n')
+        self.logger.debug(shapes)
         nodeShapes = shapes[0]
         for nodeShape in nodeShapes:
-            self.exampleNodeShapeEvaluation(nodeShapes[nodeShape], fp)
-        fp.write('</body></html>')
-        fp.close()
+            self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
+        self.content.append('</body></html>')
+        print(self.content)
 
-    def exampleNodeShapeEvaluation(self, nodeShape, fp):
-        fp.write("<form >\n")
-        self.logger.warning('-------------------------------------')
-        self.logger.warning('This NodeShape is called:')
-        self.logger.warning(nodeShape.uri)
-        self.logger.warning(
+    def nodeShapeEvaluation(self, nodeShape, fp):
+        self.content.append("<form >\n")
+        self.logger.debug('This NodeShape is called:')
+        self.logger.debug(nodeShape.uri)
+        self.logger.debug(
             'This Resource needs to be in the following classes'
             + '(can be used through rdfa annotation?):'
             )
+
         for tClass in nodeShape.targetClass:
-            self.logger.warning(tClass)
-        self.logger.warning(
+            self.logger.debug(tClass)
+        self.logger.debug(
             'The following ressources are targets of this Shape'
             + '(unnecessary for RDForms/Forms in general):'
             )
+
         for nodes in nodeShape.targetNode:
-            self.logger.warning(nodes)
-        self.logger.warning(
+            self.logger.debug(nodes)
+        self.logger.debug(
             'The following ressources need to be Objects of those predicates'
             + '(can be used through rdfa annotation?):'
             )
+
         for nodes in nodeShape.targetObjectsOf:
-            self.logger.warning(nodes)
-        self.logger.warning(
+            self.logger.debug(nodes)
+        self.logger.debug(
             'The following ressources need to be Subjects of those predicates'
             + '(can be used through rdfa annotation?):'
             )
-        for nodes in nodeShape.targetSubjectsOf:
-            self.logger.warning(nodes)
-        for property in nodeShape.properties:
-            self.examplePropertyShapeEvaluation(property, fp)
-        self.logger.warning('-------------------------------------')
-        fp.write("</form>")
 
-    def examplePropertyShapeEvaluation(self, propertyShape, fp):
+        for nodes in nodeShape.targetSubjectsOf:
+            self.logger.debug(nodes)
+
+        for property in nodeShape.properties:
+            self.propertyShapeEvaluation(property, fp)
+
+        self.content.append("</form>")
+
+    def propertyShapeEvaluation(self, propertyShape, fp):
         if isinstance(propertyShape.path, dict):
-            self.logger.warning('Complex path saves as Dictionary(unsure how to exactly use it):')
-            self.logger.warning(propertyShape.path)
+            self.logger.debug('Complex path saves as Dictionary(unsure how to exactly use it):')
+            self.logger.debug(propertyShape.path)
         else:
-            self.logger.warning('Simple path:')
-            self.logger.warning(propertyShape.path)
+            self.logger.debug('Simple path:')
+            self.logger.debug(propertyShape.path)
+
             if propertyShape.isSet['message']:
                 if propertyShape.isSet['minCount']:
                     for i in range(0, propertyShape.minCount):
@@ -92,5 +106,3 @@ class ExampleHTMLWriter:
                             + ' : <br>\n <input type="text" name="' + propertyShape.path
                             + str(i - propertyShape.minCount + 1) + '" value=""><br>\n'
                         )
-
-# x = ExampleHTMLWriter()

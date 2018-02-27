@@ -1,6 +1,3 @@
-from .modules.NodeShape import NodeShape
-from .modules.PropertyShape import PropertyShape
-from .ShapeParser import ShapeParser
 import logging
 
 
@@ -26,23 +23,36 @@ class HTMLSerializer:
         for nodeShape in nodeShapes:
             self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
         self.content.append('</body></html>')
-        print(self.content)
+        self.saveToFile()
+
+    def saveToFile(self):
+        fp = open(self.outputfile, 'w')
+        fp.write(''.join(self.content))
+        fp.close
 
     def nodeShapeEvaluation(self, nodeShape, fp):
         self.content.append("<form >\n")
-        self.logger.debug('This NodeShape is called:')
-        self.logger.debug(nodeShape.uri)
         self.logger.debug(
             'This Resource needs to be in the following classes'
             + '(can be used through rdfa annotation?):'
             )
 
-        for tClass in nodeShape.targetClass:
-            self.logger.debug(tClass)
-        self.logger.debug(
-            'The following ressources are targets of this Shape'
-            + '(unnecessary for RDForms/Forms in general):'
-            )
+        if len(nodeShape.targetClass) > 1:
+            self.content.append("<p>Create new resource</p><br>")
+            self.content.append("<fieldset>Type<br>")
+
+            for tClass in nodeShape.targetClass:
+                self.content.append(
+                    '<input type="radio" name="type" value={type}>{short}</input><br>'.format(
+                        type=tClass, short=tClass.rsplit('/', 1)[-1]))
+
+            self.content.append("</fieldset><br>")
+        elif len(nodeShape.targetClass) == 1:
+            self.content.append("<p>Create new {}</p><br>".format(
+                nodeShape.targetClass[0].rsplit('/', 1)[-1]))
+            self.content.append(
+                '<input type="hidden" name="type" value={type}></input><br>'.format(
+                    type=nodeShape.targetClass[0]))
 
         for nodes in nodeShape.targetNode:
             self.logger.debug(nodes)
@@ -62,47 +72,42 @@ class HTMLSerializer:
             self.logger.debug(nodes)
 
         for property in nodeShape.properties:
-            self.propertyShapeEvaluation(property, fp)
+            content = self.propertyShapeEvaluation(property, fp)
+            self.content.append(content)
 
         self.content.append("</form>")
 
     def propertyShapeEvaluation(self, propertyShape, fp):
-        if isinstance(propertyShape.path, dict):
-            self.logger.debug('Complex path saves as Dictionary(unsure how to exactly use it):')
-            self.logger.debug(propertyShape.path)
-        else:
-            self.logger.debug('Simple path:')
-            self.logger.debug(propertyShape.path)
+        html = ''
 
-            if propertyShape.isSet['message']:
-                if propertyShape.isSet['minCount']:
-                    for i in range(0, propertyShape.minCount):
-                        fp.write(
-                            propertyShape.message['default'] + ' ' + str(i+1)
-                            + ' : <br>\n <input type="text" name="' + propertyShape.path
-                            + str(i+1) + '" value=""><br>\n'
-                        )
-                if propertyShape.isSet['maxCount']:
-                    for i in range(max(propertyShape.minCount, 0), propertyShape.maxCount):
-                        fp.write(
-                            propertyShape.message['default'] + ' Optional Entry '
-                            + str(i - propertyShape.minCount + 1)
-                            + ' : <br>\n <input type="text" name="' + propertyShape.path
-                            + str(i - propertyShape.minCount + 1) + '" value=""><br>\n'
-                        )
+        if isinstance(propertyShape.path, dict):
+            # TODO handle complex paths (inverse, oneOrMorePath ...)
+            self.logger.info('Complex path not supported, yet')
+        elif isinstance(propertyShape.path, list):
+            # TODO handle sequence paths
+            self.logger.info('Sequence path not supported, yet')
+        else:
+            label = propertyShape.name \
+                if propertyShape.isSet['name'] else propertyShape.path.rsplit('/', 1)[-1]
+
+            if not propertyShape.isSet['minCount'] and not propertyShape.isSet['maxCount']:
+                html += """{label}:<br>
+                    <input type="text" name="{label}"><br>\n""".format(label=label)
             else:
+                html += "<fieldset>{}<br>".format(label)
+
                 if propertyShape.isSet['minCount']:
                     for i in range(0, propertyShape.minCount):
-                        fp.write(
-                            propertyShape.path + ' [no name set] Entry ' + str(i+1)
-                            + ' : <br>\n <input type="text" name="' + propertyShape.path
-                            + str(i+1) + '" value=""><br>\n'
-                        )
+                        html += """{counter}:<br>
+                            <input type="text" name="{label}[{counter}]"><br>\n""".format(
+                            label=label, counter=str(i+1))
+
                 if propertyShape.isSet['maxCount']:
                     for i in range(max(propertyShape.minCount, 0), propertyShape.maxCount):
-                        fp.write(
-                            propertyShape.path + ' [no name set] Optional Entry '
-                            + str(i - propertyShape.minCount + 1)
-                            + ' : <br>\n <input type="text" name="' + propertyShape.path
-                            + str(i - propertyShape.minCount + 1) + '" value=""><br>\n'
-                        )
+                        html += """{counter}:<br>
+                            <input type="text" name="{label}[{counter}]"><br>\n""".format(
+                            label=label, counter=str(propertyShape.minCount + i-1))
+
+                html += "</fieldset><br>"
+
+        return html

@@ -1,0 +1,28 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://www.example.org/> .
+
+ex:ExampleNodeShapeWithPropertyShapes
+	a sh:NodeShape ;
+	sh:targetClass ex:Person, ex:Animal ;
+	sh:property [
+		sh:path ex:email ;
+		sh:name "e-mail" ;
+		sh:description "We need at least one email value" ;
+		sh:minCount 2 ;
+		sh:maxCount 5 ;
+	] ;
+	sh:property [
+		sh:path (ex:knows ex:email) ;
+		sh:name "Friend's e-mail" ;
+		sh:description "We need at least one email for everyone you know" ;
+		sh:minCount 1 ;
+	] .
+
+ex:ExamplePropertyShape
+	a sh:PropertyShape ;
+	sh:path ex:email ;
+	sh:description "We need at least one email value" ;
+	sh:minCount 2 .

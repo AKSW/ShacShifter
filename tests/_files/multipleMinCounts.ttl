@@ -4,7 +4,9 @@
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix ex: <http://www.example.org/> .
 
-ex:exampleShape
-    a sh:NodeShape ;
-    sh:property [ sh:path ex:pathA ] ,
-                [ sh:path ex:pathB ] .
+ex:ExampleShape
+	sh:property [
+		sh:path ex:email ;
+		sh:minCount 1 ;
+		sh:minCount 2 ;
+	] .

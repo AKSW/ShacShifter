@@ -21,7 +21,6 @@ class ShacShifter:
         """Transform input to output with format."""
         self.logger.debug('Start Shifting from {} into {}'.format(input, output))
         parser = ShapeParser()
-        parser.parseShape(input)
         parseResult = parser.parseShape(input)
 
         if (format == "html"):
@@ -30,4 +29,3 @@ class ShacShifter:
             writer = RDFormsSerializer()
         else:
             writer = None
-        # writer.write(parseResult, output)

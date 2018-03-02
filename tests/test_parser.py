@@ -15,27 +15,44 @@ class ShapeParserTests(unittest.TestCase):
         self.parser = None
         self.dir = None
 
+    def testMinMaxLogic(self):
+        with self.assertRaises(Exception):
+            ShapeParser().parseShape(path.join(self.dir, 'minGreaterMax.ttl'))
+
+        with self.assertRaises(Exception):
+            ShapeParser().parseShape(path.join(self.dir, 'maxLowerMin.ttl'))
+
+        with self.assertRaises(Exception):
+            ShapeParser().parseShape(path.join(self.dir, 'multipleMinCounts.ttl'))
+
+        with self.assertRaises(Exception):
+            ShapeParser().parseShape(path.join(self.dir, 'multipleMaxCounts.ttl'))
+
+        shapes = ShapeParser().parseShape(path.join(self.dir, 'minLowerMax.ttl'))
+        self.assertEqual(shapes[0]['http://www.example.org/ExampleShape'].properties[0].minCount, 1)
+        self.assertEqual(shapes[0]['http://www.example.org/ExampleShape'].properties[0].maxCount, 2)
+
     def testPositiveNodeShapeParse(self):
         shapes = self.parser.parseShape(self.dir + '/positiveNodeShapeParserExample1.ttl')
         nodeShapes = shapes[0]
-        nodeShape = nodeShapes[('http://www.example.org/example/exampleShape')]
-        self.assertEqual(str(nodeShape.uri), 'http://www.example.org/example/exampleShape')
+        nodeShape = nodeShapes[('http://www.example.org/exampleShape')]
+        self.assertEqual(str(nodeShape.uri), 'http://www.example.org/exampleShape')
 
         targetClasses = [
-            'http://www.example.org/example/Animal',
-            'http://www.example.org/example/Person'
+            'http://www.example.org/Animal',
+            'http://www.example.org/Person'
         ]
         self.assertEqual(sorted(nodeShape.targetClass), targetClasses)
 
         targetNodes = [
-            'http://www.example.org/example/Alice',
-            'http://www.example.org/example/Bob'
+            'http://www.example.org/Alice',
+            'http://www.example.org/Bob'
         ]
         self.assertEqual(sorted(nodeShape.targetNode), targetNodes)
 
         relationships = [
-            'http://www.example.org/example/friendship',
-            'http://www.example.org/example/relationship'
+            'http://www.example.org/friendship',
+            'http://www.example.org/relationship'
         ]
         self.assertEqual(sorted(nodeShape.targetObjectsOf), relationships)
         self.assertEqual(sorted(nodeShape.targetSubjectsOf), relationships)
@@ -43,9 +60,9 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(nodeShape.closed, True)
 
         ignoredProperties = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B',
-            'http://www.example.org/example/C'
+            'http://www.example.org/A',
+            'http://www.example.org/B',
+            'http://www.example.org/C'
         ]
         self.assertEqual(sorted(nodeShape.ignoredProperties), ignoredProperties)
         self.assertEqual(str(nodeShape.message['default']), "C")
@@ -57,15 +74,15 @@ class ShapeParserTests(unittest.TestCase):
         shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample1.ttl')
         propertyShapes = shapes[1]
         propertyShape = propertyShapes[
-            'http://www.example.org/example/exampleShapeA'
+            'http://www.example.org/exampleShapeA'
         ]
 
-        self.assertEqual(str(propertyShape.uri), 'http://www.example.org/example/exampleShapeA')
-        self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathA')
+        self.assertEqual(str(propertyShape.uri), 'http://www.example.org/exampleShapeA')
+        self.assertEqual(str(propertyShape.path), 'http://www.example.org/PathA')
 
         classes = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShape.classes), classes)
         self.assertEqual(
@@ -91,67 +108,67 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(propertyShape.uniqueLang, True)
 
         equals = [
-            'http://www.example.org/example/PathB',
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathB',
+            'http://www.example.org/PathC'
         ]
         self.assertEqual(sorted(propertyShape.equals), equals)
 
         disjoint = [
-            'http://www.example.org/example/PathB',
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathB',
+            'http://www.example.org/PathC'
         ]
         self.assertEqual(sorted(propertyShape.disjoint), disjoint)
 
         lessThan = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShape.lessThan), lessThan)
         lessThanOrEquals = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShape.lessThanOrEquals), lessThanOrEquals)
 
         nodes = [
-            'http://www.example.org/example/propertyShapeA',
-            'http://www.example.org/example/propertyShapeB'
+            'http://www.example.org/propertyShapeA',
+            'http://www.example.org/propertyShapeB'
         ]
         self.assertEqual(sorted(propertyShape.nodes), nodes)
 
         qualifiedValueShape = [
-            'http://www.example.org/example/friendship',
-            'http://www.example.org/example/relationship'
+            'http://www.example.org/friendship',
+            'http://www.example.org/relationship'
         ]
         self.assertEqual(
             str(propertyShape.qualifiedValueShape.path),
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathC'
         )
         self.assertEqual(propertyShape.qualifiedValueShapeDisjoint, True)
         self.assertEqual(int(propertyShape.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShape.qualifiedMaxCount), 2)
 
         propertyShape = propertyShapes[
-            'http://www.example.org/example/exampleShapeB'
+            'http://www.example.org/exampleShapeB'
         ]
-        self.assertEqual(str(propertyShape.path), 'http://www.example.org/example/PathB')
+        self.assertEqual(str(propertyShape.path), 'http://www.example.org/PathB')
 
     def testPositiveNodeShapePropertiesParse(self):
         shapes = self.parser.parseShape(self.dir + '/positivePropertyShapeParserExample2.ttl')
         nodeShapes = shapes[0]
         nodeShape = nodeShapes[
-            'http://www.example.org/example/exampleShape'
+            'http://www.example.org/exampleShape'
         ]
 
         for shape in nodeShape.properties:
-            if str(shape.path) == 'http://www.example.org/example/PathA':
+            if str(shape.path) == 'http://www.example.org/PathA':
                 propertyShapeA = shape
             else:
                 propertyShapeB = shape
 
         classes = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShapeA.classes), classes)
         self.assertEqual(
@@ -177,47 +194,47 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(propertyShapeA.uniqueLang, True)
 
         equals = [
-            'http://www.example.org/example/PathB',
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathB',
+            'http://www.example.org/PathC'
         ]
         self.assertEqual(sorted(propertyShapeA.equals), equals)
 
         disjoint = [
-            'http://www.example.org/example/PathB',
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathB',
+            'http://www.example.org/PathC'
         ]
         self.assertEqual(sorted(propertyShapeA.disjoint), disjoint)
 
         lessThan = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShapeA.lessThan), lessThan)
 
         lessThanOrEquals = [
-            'http://www.example.org/example/A',
-            'http://www.example.org/example/B'
+            'http://www.example.org/A',
+            'http://www.example.org/B'
         ]
         self.assertEqual(sorted(propertyShapeA.lessThanOrEquals), lessThanOrEquals)
 
         nodes = [
-            'http://www.example.org/example/propertyShapeA',
-            'http://www.example.org/example/propertyShapeB'
+            'http://www.example.org/propertyShapeA',
+            'http://www.example.org/propertyShapeB'
         ]
         self.assertEqual(sorted(propertyShapeA.nodes), nodes)
 
         qualifiedValueShape = [
-            'http://www.example.org/example/friendship',
-            'http://www.example.org/example/relationship'
+            'http://www.example.org/friendship',
+            'http://www.example.org/relationship'
         ]
         self.assertEqual(
             str(propertyShapeA.qualifiedValueShape.path),
-            'http://www.example.org/example/PathC'
+            'http://www.example.org/PathC'
         )
         self.assertEqual(propertyShapeA.qualifiedValueShapeDisjoint, True)
         self.assertEqual(int(propertyShapeA.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShapeA.qualifiedMaxCount), 2)
-        self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/example/PathB')
+        self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/PathB')
 
 
 def main():

@@ -244,11 +244,13 @@ class ShapeParser:
 
         if not (self.g.value(subject=shapeUri, predicate=self.sh.minLength) is None):
             propertyShape.isSet['minLength'] = True
-            propertyShape.minLength = int(self.g.value(subject=shapeUri, predicate=self.sh.minLength))
+            propertyShape.minLength = int(
+                self.g.value(subject=shapeUri, predicate=self.sh.minLength))
 
         if not (self.g.value(subject=shapeUri, predicate=self.sh.maxLength) is None):
             propertyShape.isSet['maxLength'] = True
-            propertyShape.maxLength = int(self.g.value(subject=shapeUri, predicate=self.sh.maxLength))
+            propertyShape.maxLength = int(
+                self.g.value(subject=shapeUri, predicate=self.sh.maxLength))
 
         if not (self.g.value(subject=shapeUri, predicate=self.sh.pattern) is None):
             propertyShape.isSet['pattern'] = True
@@ -323,12 +325,10 @@ class ShapeParser:
             qvsUri = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShape)
             propertyShape.qualifiedValueShape = self.parsePropertyShape(qvsUri)
 
-        if not (self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShapeDisjoint) is None):
+        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShapeDisjoint)
+        if val is not None:
             propertyShape.isSet['qualifiedValueShapeDisjoint'] = True
-            qualifiedValueShapeDisjoint = str(self.g.value(
-                subject=shapeUri,
-                predicate=self.sh.qualifiedValueShapeDisjoint
-            ).lower())
+            qualifiedValueShapeDisjoint = str(val).lower
             if (qualifiedValueShapeDisjoint == "true"):
                 propertyShape.qualifiedValueShapeDisjoint = True
 

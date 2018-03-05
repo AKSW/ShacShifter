@@ -31,6 +31,11 @@ class HTMLSerializer:
         fp.close
 
     def nodeShapeEvaluation(self, nodeShape, fp):
+        """Evaluate a nodeShape.
+
+        args:   nodeShape a nodeShape object
+                fp
+        """
         self.content.append("<form >\n")
         self.logger.debug(
             'This Resource needs to be in the following classes'
@@ -78,6 +83,12 @@ class HTMLSerializer:
         self.content.append("</form>")
 
     def propertyShapeEvaluation(self, propertyShape, fp):
+        """Evaluate a propertyShape and return HTML.
+
+        args:   propertyShape a propertyShape object
+                fp
+        return: html string
+        """
         html = ''
 
         if isinstance(propertyShape.path, dict):

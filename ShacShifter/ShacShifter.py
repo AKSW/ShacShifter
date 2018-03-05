@@ -26,6 +26,7 @@ class ShacShifter:
         if (format == "html"):
             writer = HTMLSerializer(parseResult, output)
         elif (format == "rdforms"):
-            writer = RDFormsSerializer()
+            writer = RDFormsSerializer(parseResult, output)
+            writer.write()
         else:
             writer = None

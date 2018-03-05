@@ -10,24 +10,39 @@ class RDFormsSerializer:
 
     logger = logging.getLogger('ShacShifter.RDFormsSerializer')
     content = []
+    outputfile = None
 
-    def write(self, shapes, output):
+    def __init__(self, shapes, outputfile):
         try:
-            fp = open(output, 'w')
-        except Exception as e:
-            self.logger.error("Couldn't write to output location.")
-            self.logger.error(e)
-            return
+            fp = open(outputfile, 'w')
+            self.outputfile = outputfile
+            fp.close()
+        except Exception:
+            self.logger.error('Can''t write to file {}'.format(outputfile))
+            self.logger.error('Content will be printed to sys.')
 
+        self.content.append('{')
         nodeShapes = shapes[0]
-
         for nodeShape in nodeShapes:
-            self.exampleNodeShapeEvaluation(nodeShapes[nodeShape], fp)
+            self.nodeShapeEvaluation(nodeShapes[nodeShape])
+        self.content.append('}')
 
+    def write(self):
+        """Write RDForms to file oder sysout."""
+        if self.outputfile:
+            self.saveToFile()
+        print(''.join(self.content))
+
+    def saveToFile(self):
+        fp = open(self.outputfile, 'w')
         fp.write(''.join(self.content))
         fp.close()
 
-    def exampleNodeShapeEvaluation(self, nodeShape, fp):
+    def nodeShapeEvaluation(self, nodeShape):
+        """Evaluate a nodeShape.
+
+        args:   nodeShape a nodeShape object
+        """
         self.content.append('{\n')
         self.logger.debug(
             'No real "Label" for Nodeshapes -> add rdfs:label as option? otherwise check message?')
@@ -55,13 +70,24 @@ class RDFormsSerializer:
 
         for property in nodeShape.properties:
             propertyString = ''
-            propertyString += ('{\n' + self.examplePropertyShapeEvaluation(property) + '\n},')
+            propertyString += ('{\n' + self.propertyShapeEvaluation(property) + '\n},')
 
         self.content.append(propertyString[0:-3] + ']\n}')
 
-    def examplePropertyShapeEvaluation(self, propertyShape):
+    def propertyShapeEvaluation(self, propertyShape):
+        """Evaluate a propertyShape and return HTML.
+
+        args:   propertyShape a propertyShape object
+        return: choiceItem string
+        """
+        choiceItem = ''
+
         if isinstance(propertyShape.path, dict):
-            self.logger.debug('Complex path saves as Dictionary(unsure how to exactly use it):')
+            # TODO handle complex paths (inverse, oneOrMorePath ...)
+            self.logger.info('Complex path not supported, yet')
+        elif isinstance(propertyShape.path, list):
+            # TODO handle sequence paths
+            self.logger.info('Sequence path not supported, yet')
         else:
             if propertyShape.isSet['shIn']:
                 # choice type
@@ -108,10 +134,7 @@ class RDFormsSerializer:
                 choiceItem += ']\n},'
                 choiceItem += choices + '\n]'
 
-                return choiceItem
-            else:
-                # text type
-                return ''
+        return choiceItem
 
 # x = RDFormsWriter()
 

@@ -43,21 +43,28 @@ class RDFormsSerializer:
 
         args:   nodeShape a nodeShape object
         """
-        self.content.append('{\n')
-        self.logger.debug(
-            'No real "Label" for Nodeshapes -> add rdfs:label as option? otherwise check message?')
-        self.content.append('"label":{')
+        def addNodeLabel():
+            self.logger.debug(
+                'No real "Label" for Nodeshapes -> add rdfs:label as option? otherwise check message?')
 
-        if nodeShape.isSet['message']:
-            labels = ''
-            for lang, message in nodeShape.message.items():
-                labels += ('"' + lang + '":"' + message + '", ')
-            self.content.append(labels[0:-3] + '},\n')
+            print(nodeShape)
+            if nodeShape.isSet['message']:
+                self.content.append('"label":{')
+                labels = ''
+                for lang, message in nodeShape.message.items():
+                    labels += ('"' + lang + '":"' + message + '", ')
+                self.content.append(labels[0:-3] + '},\n')
 
-        self.content.append('"root":"' + nodeShape.uri + '",')
+        def addNodeDescription():
+            self.logger.debug("""Description just like label has no correct
+                sh:equvivalent on core shacl -> messages could be used""")
 
-        self.logger.debug("""Description just like label has no correct
-            sh:equvivalent on core shacl -> messages could be used""")
+        def addNodeRoot():
+            self.content.append('"root":"' + nodeShape.uri + '",')
+
+        self.content.append(addNodeLabel())
+        self.content.append(addNodeDescription())
+        self.content.append(addNodeRoot())
 
         self.logger.debug("""Unsure how to handle the sh:targetClass, targetSubjectOf and
             targetObjectOf properties, should they be constraints for all templates?""")
@@ -66,11 +73,12 @@ class RDFormsSerializer:
         self.logger.debug("""sh:closed, sh:ignoredProperties, sh:nodeKind and sh:severity
             arent useful for forms either""")
 
-        self.content.append('"templates":[\n')
-
-        for property in nodeShape.properties:
-            propertyString = ''
-            propertyString += ('{\n' + self.propertyShapeEvaluation(property) + '\n},')
+        if len(nodeShape.properties) > 0:
+            self.content.append('"templates":[\n')
+            for property in nodeShape.properties:
+                propertyString = ''
+                propertyString += ('{\n' + self.propertyShapeEvaluation(property) + '\n},')
+            self.content.append(']\n')
 
         self.content.append(propertyString[0:-3] + ']\n}')
 

@@ -44,10 +44,7 @@ class RDFormsSerializer:
         args:   nodeShape a nodeShape object
         """
         def addNodeLabel():
-            self.logger.debug(
-                'No real "Label" for Nodeshapes -> add rdfs:label as option? otherwise check message?')
-
-            print(nodeShape)
+            # TODO generic label via labels of targets?
             if nodeShape.isSet['message']:
                 self.content.append('"label":{')
                 labels = ''

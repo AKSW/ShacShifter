@@ -1,35 +1,77 @@
 from .modules.NodeShape import NodeShape
 from .modules.PropertyShape import PropertyShape
 from .ShapeParser import ShapeParser
+import json
 import logging
 
 
-class RDFormTemplateBundle:
+class RDFormsPart:
+    """A super class that provides some methods."""
+    def __str__(self):
+        """Print RDFormsTemplate object."""
+        return ', '.join(['%s: %s' % (key, value) for (key, value) in self.__dict__.items()])
+
+    def toJson(self):
+        return json.dumps(self.jsonRepr(), indent=4)
+
+    def jsonRepr(self):
+        jd = {}
+        for arg, value in self.__dict__.items():
+            if value not in ['', []]:
+                jd[arg] = value
+        return jd
+
+
+class RDFormsTemplateBundle(RDFormsPart):
     """The RDForms template bundle class."""
 
     def __init__(self):
+        """Initialize an RDFormsTemplateBundle object."""
         self.label = ''
         self.description = {}
         self.root = ''
         self.templates = []
         self.cachedCoices = {}
 
+    def __str__(self):
+        """Print RDFormsTemplateBundle object."""
+        printdict = {}
+        for key, value in self.__dict__.items():
+            if key == 'templates':
+                printdict[key] = [str(template) for template in value]
+            else:
+                printdict[key] = value
+        return ', '.join(['%s: %s' % (key, value) for (key, value) in printdict.items()])
 
-class RDFormTemplate:
-    """The RDForms template class."""
+    def jsonRepr(self):
+        """Return a representation that is parseable by json encoder."""
+        jd = {}
+        for key, value in self.__dict__.items():
+            if key == 'templates' and len(value) > 0:
+                jd[key] = [template.jsonRepr() for template in value]
+            else:
+                jd[key] = value
+        return jd
+
+
+class RDFormsTemplate(RDFormsPart):
+    """The RDForms template (super)class."""
 
     def __init__(self):
+        """Initialize an RDFormsTemplate object."""
         self.id = ''
         self.label = ''
         self.description = {}
         self.property = ''
-        self.cardinality = {'min': 0, 'max': -1, 'pref': 0}
+        self.cardinality = {'min': 0, 'pref': 0}
 
 
-class RDFormsGroupItem(RDFormTemplate):
+class RDFormsGroupItem(RDFormsTemplate):
     """A template item of type "group"."""
 
     def __init__(self):
+        """Initialize an RDFormsGrouptItem object."""
+        super().__init__()
         self.type = 'group'
         self.constraints = {}
         self.nodetype = ''
@@ -37,38 +79,51 @@ class RDFormsGroupItem(RDFormTemplate):
         self.cls = ''
         self.items = []
         self.automatic = False
-        super(RDFormsGroupItem, self).__init__()
 
 
-class RDFormsPropertyGroupItem(RDFormTemplate):
+class RDFormsPropertyGroupItem(RDFormsTemplate):
     """A template item of type "propertygroup"."""
 
     def __init__(self):
+        """Initialize an RDFormsPropertyGrouptItem object."""
+        super().__init__()
         self.type = 'propertygroup'
         self.constraints = {}
         self.nodetype = ''
         self.styles = []
         self.cls = ''
         self.items = []
-        super(RDFormsPropertyGroupItem, self).__init__()
 
-class RDFormsTextItem(RDFormTemplate):
+
+class RDFormsTextItem(RDFormsTemplate):
     """A template item of type "group"."""
 
     def __init__(self):
+        """Initialize an RDFormsTextItem object."""
+        super().__init__()
+        self.cardinality = {'min': 0, 'pref': 1}
         self.type = 'text'
         self.nodetype = ''
         self.datatype = ''
         self.styles = []
         self.cls = ''
         self.uriValueLabelProperties = []
-        super(RDFormsTextItem, self).__init__()
+
+    def jsonRepr(self):
+        """Return a representation that is parseable by json encoder."""
+        jd = {}
+        for arg, value in self.__dict__.items():
+            if value not in ['', []]:
+                jd[arg] = value
+        return jd
 
 
-class RDFormsChoiceItem(RDFormTemplate):
+class RDFormsChoiceItem(RDFormsTemplate):
     """A template item of type "group"."""
 
     def __init__(self):
+        """Initialize an RDFormsChoiceItem object."""
+        super().__init__()
         self.type = 'choice'
         self.constraints = {}
         self.nodetype = ''
@@ -81,12 +136,29 @@ class RDFormsChoiceItem(RDFormTemplate):
         self.isHierarchyPropertyInverted = False
         self.choices = []
         self.uriValueLabelProperties = []
-        super(RDFormsChoiceItem, self).__init__()
+
+    def __str__(self):
+        """Print RDFormsChoiceItem object."""
+        printdict = {}
+        for key, value in self.__dict__.items():
+            if key == 'choices':
+                printdict[key] = [str(choice) for choice in value]
+        return ', '.join(['%s: %s' % (key, value) for (key, value) in printdict.items()])
+
+    def jsonRepr(self):
+        """Return a representation that is parseable by json.dumps() method."""
+        jd = {}
+        for arg, value in self.__dict__.items():
+            if value not in ['', []]:
+                jd[arg] = value if arg != 'choices' else [choice.jsonRepr() for choice in value]
+        return jd
 
 
-class RDFormsChoiceExpression:
+class RDFormsChoiceExpression(RDFormsPart):
     """A a class for choice expressions."""
+
     def __init__(self):
+        """Initialize an RDFormsChoiceExpression object."""
         self.value = ''
         self.label = ''
         self.description = ''
@@ -94,15 +166,38 @@ class RDFormsChoiceExpression:
         self.selectable = True
         self.children = {}
 
+    def __str__(self):
+        """Print RDFormsChoiceExpression object."""
+        printdict = {}
+        for key, value in self.__dict__.items():
+            if key == 'children':
+                printdict[key] = [str(child) for child in value]
+            else:
+                printdict[key] = value
+        return ', '.join(['%s: %s' % (key, value) for (key, value) in printdict.items()])
+
+    def jsonRepr(self):
+        """Return a representation that is parseable by json.dumps() method."""
+        jd = {}
+        for arg, value in self.__dict__.items():
+            if value not in ['', []]:
+                jd[arg] = value
+        return jd
+
 
 class RDFormsSerializer:
     """A serializer for RDForms."""
 
     logger = logging.getLogger('ShacShifter.RDFormsSerializer')
-    content = []
+    templateBundles = []
     outputfile = None
 
     def __init__(self, shapes, outputfile):
+        """Initialize the Serializer and parse des ShapeParser results.
+
+        args: shapes
+              string outputfile
+        """
         try:
             fp = open(outputfile, 'w')
             self.outputfile = outputfile
@@ -114,129 +209,105 @@ class RDFormsSerializer:
         nodeShapes = shapes[0]
         self.propertyShapes = shapes[1]
 
-        self.content.append('{\n')
-
         for nodeShape in nodeShapes:
-            self.nodeShapeEvaluation(nodeShapes[nodeShape])
-
-        self.content.append('}')
+            bundle = self.createTemplateBundle(nodeShapes[nodeShape])
+            self.templateBundles.append(bundle)
 
     def write(self):
-        """Write RDForms to file oder sysout."""
+        """Write RDForms to file or sysout."""
         if self.outputfile:
-            self.saveToFile()
-        print(''.join(self.content))
+            fp = open(self.outputfile, 'w')
+            for bundle in self.templateBundles:
+                jsonstring = bundle.toJson()
+                print(jsonstring)
+                fp.write(jsonstring + '\n')
+            fp.close()
+        else:
+            for bundle in self.templateBundles:
+                print(bundle.toJson())
 
-    def saveToFile(self):
-        fp = open(self.outputfile, 'w')
-        fp.write(''.join(self.content))
-        fp.close()
-
-    def nodeShapeEvaluation(self, nodeShape):
+    def createTemplateBundle(self, nodeShape):
         """Evaluate a nodeShape.
 
-        args:   nodeShape a nodeShape object
+        args:   NodeShape nodeShape
         """
         def addNodeLabel():
             if nodeShape.isSet['targetClass']:
-                label = '"en":"Create new ' + ', '.join(nodeShape.targetClass) + '"'
+                label = {'en': 'Create new Instance of: ' + ', '.join(nodeShape.targetClass)}
             if nodeShape.isSet['targetNode']:
-                label = '"en":"Edit ' + ', '.join(nodeShape.targetNode) + '"'
+                label = {'en': 'Edit Instance of: ' + ', '.join(nodeShape.targetNode)}
             if nodeShape.isSet['targetObjectsOf']:
-                label = '"en":"Edit ' + ', '.join(nodeShape.targetObjectsOf) + '"'
+                label = {'en': ', '.join(nodeShape.targetObjectsOf)}
             if nodeShape.isSet['targetSubjectsOf']:
-                label = '"en":"Edit ' + ', '.join(nodeShape.targetSubjectsOf) + '"'
-            return '  "label":{' + label + '},\n'
-
-        def addNodeDescription():
-            descriptions = ''
-            if nodeShape.isSet['message']:
-                for lang, message in nodeShape.message.items():
-                    descriptions += ('"' + lang + '":"' + message + '", ')
-            return '  "description":{' + descriptions + '},\n'
-
-        def addNodeRoot():
-            return '  "root":"' + nodeShape.uri + '",\n'
+                label = {'en': 'Edit: '', '.join(nodeShape.targetSubjectsOf)}
+            return label
 
         def addTemplates():
             """Check Propertey Shapes to fill the templates."""
-            templates = ['  "templates":[\n']
-            for id, propertyShape in self.propertyShapes.items():
+            templates = []
+            for propertyShape in nodeShape.properties:
                 templates.append(self.getTemplate(propertyShape))
-            templates.append('\n    ]\n')
-            return ''.join(templates)
+            return templates
 
-        self.content.append(addNodeLabel())
-        self.content.append(addNodeDescription())
-        self.content.append(addNodeRoot())
-        # self.content.append(addTemplates())
+        bundle = RDFormsTemplateBundle()
+        bundle.label = addNodeLabel()
+        if nodeShape.isSet['message']:
+            bundle.description = nodeShape.message
+        bundle.root = nodeShape.uri
         if len(nodeShape.properties) > 0:
-            self.content.append(addTemplates())
+            bundle.templates = addTemplates()
+
+        return bundle
 
     def getTemplate(self, propertyShape):
         """Evaluate a propertyShape to serialize a template section.
 
-        args:   propertyShape a propertyShape object
-        return: template string
+        args:   PropertyShape propertyShape
+        return: RDFormsItem
         """
-        def getId():
-            return '\t\t"id":"' + propertyShape.path + '",\n'
-
-        def getProperty():
-            return '\t\t"property":"' + propertyShape.path + '",\n'
-
-        def getType():
+        def initTemplateItem():
             if propertyShape.isSet['shIn']:
-                return '\t\t"type":"choice",\n' + getChoices()
+                item = fillChoiceItem(RDFormsChoiceItem())
             else:
-                return '\t\t"type":"string",\n'
+                item = fillTextItem(RDFormsTextItem())
 
-        def getLabel():
-            label = propertyShape.name \
-                if propertyShape.isSet['name'] else propertyShape.path.rsplit('/', 1)[-1]
-            return '\t\t"label":"' + label + '",\n'
+            return fillBasicItemValues(item)
+
+        def fillChoiceItem(item):
+            item = fillBasicItemValues(item)
+            item.cardinality = getCardinality()
+            item.choices = self.getChoices(propertyShape)
+            return item
+
+        def fillTextItem(item):
+            item.cardinality = getCardinality()
+            return item
+
+        def fillBasicItemValues(item):
+            item.id = propertyShape.path
+            item.label = propertyShape.name if propertyShape.isSet['name'] else (
+                                    propertyShape.path.rsplit('/', 1)[-1])
+            item.description = getDescription()
+            return item
 
         def getDescription():
             if propertyShape.isSet['message']:
-                message = ''
-                for lang, message in propertyShape.message.items():
-                    message += '"' + lang + '":"' + message + '", '
+                return propertyShape.message
             elif propertyShape.isSet['description']:
-                message = '"en":"' + propertyShape.description + '"'
+                return {'en': propertyShape.description}
             else:
-                message = '"en":"' + propertyShape.path.rsplit('/', 1)[-1] + '"'
-            return '\t\t"label":{' + message + '},\n'
+                return {'en': 'This is about ' + propertyShape.path}
 
         def getCardinality():
-            cardinality = '\t\t"cardinality":{'
+            cardinality = {'min': 0, 'pref': 1}
 
             if propertyShape.isSet['minCount']:
-                cardinality += '"min": ' + propertyShape.minCount + ','
-            else:
-                cardinality += '"min": 0,'
+                cardinality['min'] = propertyShape.minCount
 
             if propertyShape.isSet['maxCount']:
-                cardinality += ' "max": ' + propertyShape.maxCount
+                cardinality['max'] = propertyShape.maxCount
 
-            cardinality += '}\n'
             return cardinality
-
-        def getChoices():
-            choiceItem = ''
-            for index in range(0, len(propertyShape.shIn)):
-                choiceItem += '{"_reference: "' + propertyShape.shIn[index] + '"}'
-                choices = '{"value": "' + propertyShape.shIn[index] + '"},\n'
-                choices += '{"label": "' + propertyShape.shIn[index] + '"}\n}'
-
-                if index != len(propertyShape.shIn - 1):
-                    choiceItem += ',\n'
-                    choices += ','
-
-            choiceItem += ']\n},'
-            choiceItem += choices + '\n]'
-            return choiceItem
-
-        template = ['\t{\n']
 
         if isinstance(propertyShape.path, dict):
             # TODO handle complex paths (inverse, oneOrMorePath ...)
@@ -245,49 +316,21 @@ class RDFormsSerializer:
             # TODO handle sequence paths
             self.logger.info('Sequence path not supported, yet')
         else:
-            template.append(getId())
-            template.append(getType())
-            template.append(getLabel())
-            template.append(getDescription())
-            template.append(getCardinality())
-            template.append('\t},')
-            return ''.join(template)
+            item = initTemplateItem()
+            return item
 
-            # choiceItem += 'choices: [{\n' + '"value: "' + propertyShape.path + '",\n'
-            # self.logger.debug(
-            #     'choices and single choice items have labels and descriptions again')
-            # choiceItem += '"children":[\n'
-            #
-            # for index in range(0, len(propertyShape.shIn)):
-            #     choiceItem += '{"_reference: "' + propertyShape.shIn[index] + '"}'
-            #     choices = '{"value": "' + propertyShape.shIn[index] + '"},\n'
-            #     choices += '{"label": "' + propertyShape.shIn[index] + '"}\n}'
-            #
-            #     if index != len(propertyShape.shIn - 1):
-            #         choiceItem += ',\n'
-            #         choices += ','
-            #
-            # choiceItem += ']\n},'
-            # choiceItem += choices + '\n]'
+    def getChoices(propertyShape):
+        """Search for choice candidates in propertyShape and return a choice list.
 
+        args: PropertyShape propertyShape
+        returns: list
+        """
+        choices = []
+        for choice in propertyShape.shIn:
+            choiceItem = RDFormsChoiceExpression()
+            choiceItem.label = choice
+            choiceItem.value = choice
+            choiceItem.children = set(propertyShape.shIn) - set([choice])
+            choices.append[choiceItem]
 
-# x = RDFormsWriter()
-
-# choices: [{
-#         "top":true,
-#         "value": "http://example.com/instanceTop",
-#         "selectable": false,
-#         "label": {"sv": "Toppen", "en":"Ze top!"},
-#         "children":[
-#             {"_reference": "http://example.com/instance1"},
-#             {"_reference": "http://example.com/instance2"}
-#         ]
-#     },{
-#         "value": "http://example.com/instance1",
-#         "label": {"sv": "Matematik", "en":"Mathematics"},
-#         "description": {"sv": "Matematik är ett coolt ämne", "en":"Mathematics is a cool subject"}
-#     },{
-#         "value": "http://example.com/instance2",
-#         "label": {"sv": "Kemi", "en":"Chemistry"}
-#     }
-# ]
+        return choices

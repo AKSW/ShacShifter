@@ -4,7 +4,97 @@ from .ShapeParser import ShapeParser
 import logging
 
 
-# example class for
+class RDFormTemplateBundle:
+    """The RDForms template bundle class."""
+
+    def __init__(self):
+        self.label = ''
+        self.description = {}
+        self.root = ''
+        self.templates = []
+        self.cachedCoices = {}
+
+
+class RDFormTemplate:
+    """The RDForms template class."""
+
+    def __init__(self):
+        self.id = ''
+        self.label = ''
+        self.description = {}
+        self.property = ''
+        self.cardinality = {'min': 0, 'max': -1, 'pref': 0}
+
+
+class RDFormsGroupItem(RDFormTemplate):
+    """A template item of type "group"."""
+
+    def __init__(self):
+        self.type = 'group'
+        self.constraints = {}
+        self.nodetype = ''
+        self.styles = []
+        self.cls = ''
+        self.items = []
+        self.automatic = False
+        super(RDFormsGroupItem, self).__init__()
+
+
+class RDFormsPropertyGroupItem(RDFormTemplate):
+    """A template item of type "propertygroup"."""
+
+    def __init__(self):
+        self.type = 'propertygroup'
+        self.constraints = {}
+        self.nodetype = ''
+        self.styles = []
+        self.cls = ''
+        self.items = []
+        super(RDFormsPropertyGroupItem, self).__init__()
+
+class RDFormsTextItem(RDFormTemplate):
+    """A template item of type "group"."""
+
+    def __init__(self):
+        self.type = 'text'
+        self.nodetype = ''
+        self.datatype = ''
+        self.styles = []
+        self.cls = ''
+        self.uriValueLabelProperties = []
+        super(RDFormsTextItem, self).__init__()
+
+
+class RDFormsChoiceItem(RDFormTemplate):
+    """A template item of type "group"."""
+
+    def __init__(self):
+        self.type = 'choice'
+        self.constraints = {}
+        self.nodetype = ''
+        self.styles = []
+        self.cls = ''
+        self.ontologyUrl = ''
+        self.parentProperty = ''
+        self.hierarchyProperty = ''
+        self.isParentPropertyInverted = False
+        self.isHierarchyPropertyInverted = False
+        self.choices = []
+        self.uriValueLabelProperties = []
+        super(RDFormsChoiceItem, self).__init__()
+
+
+class RDFormsChoiceExpression:
+    """A a class for choice expressions."""
+    def __init__(self):
+        self.value = ''
+        self.label = ''
+        self.description = ''
+        self.top = False
+        self.selectable = True
+        self.children = {}
+
+
 class RDFormsSerializer:
     """A serializer for RDForms."""
 

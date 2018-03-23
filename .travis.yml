@@ -24,6 +24,7 @@ before_script:
 # command to run tests
 script:
     - coverage run -a --source=ShacShifter tests/test_parser.py
+    - coverage run -a --source=ShacShifter tests/testRdformsSerializer.py
 
 after_success:
     coveralls

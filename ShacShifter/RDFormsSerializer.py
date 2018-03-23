@@ -192,7 +192,7 @@ class RDFormsSerializer:
     templateBundles = []
     outputfile = None
 
-    def __init__(self, shapes, outputfile):
+    def __init__(self, shapes, outputfile=None):
         """Initialize the Serializer and parse des ShapeParser results.
 
         args: shapes
@@ -232,6 +232,7 @@ class RDFormsSerializer:
         args:   NodeShape nodeShape
         """
         def addNodeLabel():
+            label = {'en': 'Template: ' + nodeShape.uri}
             if nodeShape.isSet['targetClass']:
                 label = {'en': 'Create new Instance of: ' + ', '.join(nodeShape.targetClass)}
             if nodeShape.isSet['targetNode']:

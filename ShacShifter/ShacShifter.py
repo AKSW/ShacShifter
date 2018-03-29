@@ -6,6 +6,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')))
 
 from ShacShifter.HTMLSerializer import HTMLSerializer
+from ShacShifter.JekyllRDFSerializer import JekyllRDFSerializer
 from ShacShifter.RDFormsSerializer import RDFormsSerializer
 from ShacShifter.ShapeParser import ShapeParser
 import logging
@@ -26,6 +27,8 @@ class ShacShifter:
         if (format == "html"):
             writer = HTMLSerializer(parseResult, output, endpoint, ressourceIRI, namedGraph)
             writer.write()
+        if (format == "jekyll-rdf"):
+            writer = JekyllRDFSerializer(parseResult, output)
         elif (format == "rdforms"):
             writer = RDFormsSerializer(parseResult, output)
             writer.write()

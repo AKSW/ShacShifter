@@ -27,15 +27,15 @@ class ShapeParser:
         """
         self.g.parse(inputFilePath, format='turtle')
         nodeShapeUris = self.getNodeShapeUris()
-        propertyShapeUris = self.getPropertyShapeUris()
+        propertyShapes = self.getPropertyShapeCandidates()
 
         for shapeUri in nodeShapeUris:
             nodeShape = self.parseNodeShape(shapeUri)
             self.nodeShapes[nodeShape.uri] = nodeShape
 
-        for shapeUri in propertyShapeUris:
-            if shapeUri not in self.propertyShapes:
-                propertyShape = self.parsePropertyShape(shapeUri)
+        for propertyShapeCandidate in propertyShapes:
+            if propertyShapeCandidate not in self.propertyShapes:
+                propertyShape = self.parsePropertyShape(propertyShapeCandidate)
                 self.propertyShapes[propertyShape.uri] = propertyShape
 
         return [self.nodeShapes, self.propertyShapes]
@@ -71,10 +71,6 @@ class ShapeParser:
             if stmt not in nodeShapeUris:
                 nodeShapeUris.append(stmt)
 
-        for stmt in self.g.subjects(self.sh.targetSubjectsOf, None):
-            if stmt not in nodeShapeUris:
-                nodeShapeUris.append(stmt)
-
         # actually not exactly a nodeshape
         # for stmt in self.g.subjects(rdflib.RDF.type, self.sh.PropertyGroup):
         #     if not(stmt in nodeShapeUris):
@@ -82,7 +78,7 @@ class ShapeParser:
 
         return set(list(nodeShapeUris))
 
-    def getPropertyShapeUris(self):
+    def getPropertyShapeCandidates(self):
         """Get all property shapes.
 
         The property shapes must not be nodeshape properties or used in sh:not, sh:and,
@@ -90,14 +86,13 @@ class ShapeParser:
 
         returns: list of Property Shape URIs
         """
-        propertyShapeUris = []
+        propertyShapeUris = set()
 
         for stmt in self.g.subjects(self.sh.path, None):
-            if (not(stmt in propertyShapeUris)
-                    and not(self.g.value(predicate=self.sh.property, object=stmt))
-                    and not(self.g.value(predicate=self.rdf.first, object=stmt))
-                    and not(self.g.value(predicate=self.sh['not'], object=stmt))):
-                propertyShapeUris.append(stmt)
+            if ((self.g.value(predicate=self.sh.property, object=stmt)) is None
+                    and (self.g.value(predicate=self.rdf.first, object=stmt)) is None
+                    and (self.g.value(predicate=self.sh['not'], object=stmt)) is None):
+                propertyShapeUris.add(stmt)
 
         return propertyShapeUris
 
@@ -155,6 +150,7 @@ class ShapeParser:
             nodeShape.nodeKind = str(val)
 
         val = self.g.value(subject=shapeUri, predicate=self.sh.closed)
+
         if val is not None:
             nodeShape.isSet['closed'] = True
             if (str(val).lower() == "true"):
@@ -171,8 +167,7 @@ class ShapeParser:
     def parsePropertyShape(self, shapeUri):
         """Parse a PropertyShape given by its URI.
 
-        args:   graph g
-                string shapeUri
+        args:   string shapeUri
         returns: object PropertyShape
         """
         propertyShape = PropertyShape()
@@ -181,8 +176,14 @@ class ShapeParser:
         if shapeUri != rdflib.term.BNode(shapeUri):
             propertyShape.isSet['uri'] = True
             propertyShape.uri = str(shapeUri)
-        pathStart = self.g.value(subject=shapeUri, predicate=self.sh.path)
-        propertyShape.path = self.getPropertyPath(pathStart)
+
+        pathStart = self.g.value(subject=shapeUri, predicate=self.sh.path, any=False)
+
+        if pathStart is not None:
+            propertyShape.path = self.getPropertyPath(pathStart)
+        else:
+            if self.g.subjects(predicate=self.sh.qualifiedValueShape, object=shapeUri) is None:
+                raise Exception('No value for mandatory argument {} found.'.format(self.sh.path))
 
         for stmt in self.g.objects(shapeUri, self.sh['class']):
             propertyShape.isSet['classes'] = True
@@ -316,12 +317,14 @@ class ShapeParser:
             propertyShape.isSet['shIn'] = True
             lastListEntry = False
 
-            while not lastListEntry:
-                propertyShape.shIn.append(self.g.value(subject=val, predicate=self.rdf.first))
+            while True:
+                first_value = self.g.value(subject=val, predicate=self.rdf.first, any=False)
+                rest_value = self.g.value(subject=val, predicate=self.rdf.rest, any=False)
+                propertyShape.shIn.append(first_value)
                 # check if this was the last entry in the list
-                if self.g.value(subject=val, predicate=self.rdf.rest) == self.rdf.nil:
-                    lastListEntry = True
-                val = str(self.g.value(subject=val, predicate=self.rdf.rest))
+                if rest_value == self.rdf.nil:
+                    break
+                val = rest_value
 
         val = self.g.value(subject=shapeUri, predicate=self.sh.order)
         if val is not None:
@@ -331,21 +334,26 @@ class ShapeParser:
         val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShape)
         if val is not None:
             propertyShape.isSet['qualifiedValueShape'] = True
+            # TODO qualifiedValueShape != propertyShape but well-formed shape
             propertyShape.qualifiedValueShape = self.parsePropertyShape(val)
 
-        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShapeDisjoint)
+        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShapesDisjoint)
         if val is not None:
-            propertyShape.isSet['qualifiedValueShapeDisjoint'] = True
+            propertyShape.isSet['qualifiedValueShapesDisjoint'] = True
             if (str(val).lower() == "true"):
-                propertyShape.qualifiedValueShapeDisjoint = True
+                propertyShape.qualifiedValueShapesDisjoint = True
+                # TODO check Sibling Shapes
 
-        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedMinCount)
+        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedMinCount, any=False)
         if val is not None:
             propertyShape.isSet['qualifiedMinCount'] = True
             propertyShape.qualifiedMinCount = int(val)
 
-        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedMaxCount)
+        val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedMaxCount, any=False)
         if val is not None:
+            if (propertyShape.isSet['qualifiedMinCount'] and
+                    propertyShape.qualifiedMinCount > int(val)):
+                raise Exception('sh:qualifiedMinCount greater than sh:qualifiedMaxCount.')
             propertyShape.isSet['qualifiedMaxCount'] = True
             propertyShape.qualifiedMaxCount = int(val)
 
@@ -377,7 +385,7 @@ class ShapeParser:
 
         altPath = self.g.value(subject=pathUri, predicate=self.sh.alternativePath)
         if altPath is not None:
-            newPathUri = altPath
+            # newPathUri = altPath
             rdfDict = {self.sh.alternativePath: self.getPropertyPath(altPath)}
             return rdfDict
 
@@ -402,7 +410,7 @@ class ShapeParser:
             return rdfDict
 
         # last Object in this Pathpart, check if its an Uri and return it
-        if pathUri == rdflib.term.URIRef(pathUri):
+        if isinstance(pathUri, rdflib.term.URIRef):
             return str(pathUri)
         else:
             raise Exception('Object of sh:path is no URI')

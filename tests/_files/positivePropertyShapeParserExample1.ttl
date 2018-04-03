@@ -17,9 +17,9 @@ ex:exampleShapeA
     sh:maxInclusive 1 ;
     sh:minLength 1 ;
     sh:maxLength 2 ;
-    sh:pattern '[abc]' ;
-    sh:flags 'i' ;
-    sh:languageIn ( 'en' 'de' ) ;
+    sh:pattern "[abc]" ;
+    sh:flags "i" ;
+    sh:languageIn ( "en" "de" ) ;
     sh:uniqueLang true ;
     sh:equals ex:PathB ,
               ex:PathC ;
@@ -34,7 +34,7 @@ ex:exampleShapeA
     sh:qualifiedValueShape [
         sh:path ex:PathC
     ] ;
-    sh:qualifiedValueShapeDisjoint true ;
+    sh:qualifiedValueShapesDisjoint true ;
     sh:qualifiedMinCount 1 ;
     sh:qualifiedMaxCount 2 .
 

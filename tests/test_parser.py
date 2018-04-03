@@ -1,11 +1,18 @@
 import unittest
 import rdflib
+import os
 from os import path
 from context import ShacShifter
+from rdflib.namespace import XSD
 from ShacShifter.ShapeParser import ShapeParser
+from ShacShifter.modules.NodeShape import NodeShape
+from ShacShifter.modules.PropertyShape import PropertyShape
 
 
 class ShapeParserTests(unittest.TestCase):
+
+    w3c_test_files = 'tests/_files/w3c'
+    ex = rdflib.Namespace('http://www.example.org/')
 
     def setUp(self):
         self.parser = ShapeParser()
@@ -14,6 +21,85 @@ class ShapeParserTests(unittest.TestCase):
     def tearDown(self):
         self.parser = None
         self.dir = None
+
+    def testParsingW3CFiles(self):
+        """Test if all W3C samples are parsed without throwing an error."""
+        for root, dirs, files in os.walk(self.w3c_test_files):
+            for f in files:
+                shapes = ShapeParser().parseShape(path.join(self.w3c_test_files, f))
+                self.assertTrue(isinstance(shapes[0], dict))
+                self.assertTrue(isinstance(shapes[1], dict))
+
+    def testAddressShape(self):
+        """Test Adress Shape example."""
+        shapes = ShapeParser().parseShape(path.join(self.w3c_test_files, 'AddressShape.ttl'))
+        nodeShapesDict = shapes[0]
+        propertyShapesDict = shapes[1]
+        addressShape = nodeShapesDict[str(self.ex.AddressShape)]
+        personShape = nodeShapesDict[str(self.ex.PersonShape)]
+        postalCodeShape = addressShape.properties[0]
+        addressPropertyShape = personShape.properties[0]
+
+        self.assertEqual(len(nodeShapesDict), 2)
+        self.assertEqual(len(propertyShapesDict), 2)
+
+        self.assertEqual(addressShape.uri, str(self.ex.AddressShape))
+
+        self.assertEqual(personShape.uri, str(self.ex.PersonShape))
+
+        self.assertEqual(postalCodeShape.path, str(self.ex.postalCode))
+        self.assertEqual(postalCodeShape.dataType, str(XSD.string))
+        self.assertEqual(postalCodeShape.maxCount, 1)
+
+        self.assertEqual(addressPropertyShape.path, str(self.ex.address))
+        self.assertEqual(addressPropertyShape.minCount, 1)
+        self.assertEqual(addressPropertyShape.nodes[0], str(self.ex.AddressShape))
+
+    def testClassExampleShape(self):
+        """Test Class example."""
+        shapes = ShapeParser().parseShape(path.join(self.w3c_test_files, 'ClassExampleShape.ttl'))
+        nodeShape = shapes[0][str(self.ex.ClassExampleShape)]
+        propertyShape = nodeShape.properties[0]
+
+        self.assertEqual(nodeShape.uri, str(self.ex.ClassExampleShape))
+        self.assertTrue(str(self.ex.Alice) in nodeShape.targetNode)
+        self.assertTrue(str(self.ex.Bob) in nodeShape.targetNode)
+        self.assertTrue(str(self.ex.Carol) in nodeShape.targetNode)
+        self.assertTrue(len(nodeShape.targetNode), 3)
+        self.assertTrue(len(shapes[0]), 1)
+
+        self.assertEqual(propertyShape.path, str(self.ex.address))
+        self.assertEqual(propertyShape.classes[0], str(self.ex.PostalAddress))
+        self.assertTrue(len(propertyShape.classes), 1)
+        self.assertTrue(propertyShape in shapes[1].values())
+        self.assertTrue(len(shapes[1]), 1)
+
+    def testHand(self):
+        """Test qualifiedValueShapes of Hand example."""
+        shapes = ShapeParser().parseShape(path.join(self.w3c_test_files, 'HandShape.ttl'))
+        nodeShapesDict = shapes[0]
+        propertyShapesDict = shapes[1]
+        self.assertEqual(len(nodeShapesDict), 1)
+        self.assertEqual(len(propertyShapesDict), 3)
+        for id, nodeShape in nodeShapesDict.items():
+            values = {'http://www.example.org/Finger': 4, 'http://www.example.org/Thumb': 1}
+
+            for propertyShape in nodeShape.properties:
+                if propertyShape.isSet['qualifiedValueShape']:
+                    # One thumb and four fingers
+                    self.assertTrue(propertyShape.isSet['qualifiedValueShapesDisjoint'])
+                    self.assertEqual(propertyShape.path, str(self.ex.digit))
+                    self.assertEqual(
+                        values[propertyShape.qualifiedValueShape.classes[0]],
+                        propertyShape.qualifiedMinCount)
+                    self.assertEqual(
+                        values[propertyShape.qualifiedValueShape.classes[0]],
+                        propertyShape.qualifiedMaxCount)
+                else:
+                    # Hand
+                    self.assertEqual(propertyShape.path, str(self.ex.digit))
+                    self.assertFalse(propertyShape.isSet['qualifiedValueShapesDisjoint'])
+                    self.assertEqual(propertyShape.maxCount, 5)
 
     def testMinMaxLogic(self):
         with self.assertRaises(Exception):
@@ -144,7 +230,7 @@ class ShapeParserTests(unittest.TestCase):
             str(propertyShape.qualifiedValueShape.path),
             'http://www.example.org/PathC'
         )
-        self.assertEqual(propertyShape.qualifiedValueShapeDisjoint, True)
+        self.assertEqual(propertyShape.qualifiedValueShapesDisjoint, True)
         self.assertEqual(int(propertyShape.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShape.qualifiedMaxCount), 2)
 
@@ -231,7 +317,7 @@ class ShapeParserTests(unittest.TestCase):
             str(propertyShapeA.qualifiedValueShape.path),
             'http://www.example.org/PathC'
         )
-        self.assertEqual(propertyShapeA.qualifiedValueShapeDisjoint, True)
+        self.assertEqual(propertyShapeA.qualifiedValueShapesDisjoint, True)
         self.assertEqual(int(propertyShapeA.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShapeA.qualifiedMaxCount), 2)
         self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/PathB')

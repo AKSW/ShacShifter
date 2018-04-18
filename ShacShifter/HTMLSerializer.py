@@ -9,7 +9,7 @@ class HTMLSerializer:
     content = []
     outputfile = ''
 
-    def __init__(self, shapes, outputfile):
+    def __init__(self, nodeShapes, outputfile):
         try:
             fp = open(outputfile, 'w')
             self.outputfile = outputfile
@@ -19,7 +19,6 @@ class HTMLSerializer:
 
         self.content.append('<html> <body>\n')
         self.logger.debug(shapes)
-        nodeShapes = shapes[0]
         for nodeShape in nodeShapes:
             self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
         self.content.append('</body></html>')

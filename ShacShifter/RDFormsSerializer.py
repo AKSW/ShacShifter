@@ -192,7 +192,7 @@ class RDFormsSerializer:
     templateBundles = []
     outputfile = None
 
-    def __init__(self, shapes, outputfile=None):
+    def __init__(self, nodeShapes, outputfile=None):
         """Initialize the Serializer and parse des ShapeParser results.
 
         args: shapes
@@ -205,9 +205,6 @@ class RDFormsSerializer:
         except Exception:
             self.logger.error('Can''t write to file {}'.format(outputfile))
             self.logger.error('Content will be printed to sys.')
-
-        nodeShapes = shapes[0]
-        self.propertyShapes = shapes[1]
 
         for nodeShape in nodeShapes:
             bundle = self.createTemplateBundle(nodeShapes[nodeShape])

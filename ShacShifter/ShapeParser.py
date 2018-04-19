@@ -27,18 +27,12 @@ class ShapeParser:
         """
         self.g.parse(inputFilePath, format='turtle')
         nodeShapeUris = self.getNodeShapeUris()
-        propertyShapes = self.getPropertyShapeCandidates()
 
         for shapeUri in nodeShapeUris:
             nodeShape = self.parseNodeShape(shapeUri)
             self.nodeShapes[nodeShape.uri] = nodeShape
 
-        for propertyShapeCandidate in propertyShapes:
-            if propertyShapeCandidate not in self.propertyShapes:
-                propertyShape = self.parsePropertyShape(propertyShapeCandidate)
-                self.propertyShapes[propertyShape.uri] = propertyShape
-
-        return [self.nodeShapes, self.propertyShapes]
+        return self.nodeShapes
 
     def getNodeShapeUris(self):
         """Get URIs of all Node shapes.

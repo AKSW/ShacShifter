@@ -1,0 +1,99 @@
+# Test for full failure count of the WellFormedShapeConstraintCheck
+# obviously not all constraints can be checked in one file, but only specific tests like for circles in lists will be ignored
+# this probably counts for all 'critical' errors
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://www.example.org/> .
+
+ex:FullNegativeExampleShape
+    a sh:NodeShape ;
+    sh:ignoredProperties _:b4 ;
+    sh:ignoredProperties _:b8 ;
+    sh:closed ex:True ;
+    sh:closed ex:False ;
+    sh:targetNode _:b6 ;
+    sh:targetClass _:b6 ;
+    sh:targetSubjectsOf _:b6 ;
+    sh:targetObjectsOf _:b6 ;
+    sh:nodeKind ex:1 ;
+    sh:nodeKind ex:2 ;
+    sh:property [
+        sh:path "email" ;
+        sh:path "email1" ;
+        sh:languageIn _:b1 ;
+        sh:languageIn _:b7 ;
+        sh:class "Class1" ;
+        sh:equals "Example" ;
+        sh:disjoint "SecondProperty" ;
+        sh:lessThan "SecondProperty" ;
+        sh:lessThanOrEquals "SecondProperty" ;
+        sh:datatype "Type1" ;
+        sh:datatype "Type2" ;
+        sh:minCount ex:1 ;
+        sh:maxCount ex:2 ;
+        sh:minExclusive ex:1 ;
+        sh:minInclusive ex:1 ;
+        sh:maxExclusive ex:2 ;
+        sh:maxInclusive ex:2 ;
+        sh:minCount ex:3 ;
+        sh:maxCount ex:4 ;
+        sh:minExclusive ex:3 ;
+        sh:minInclusive ex:3 ;
+        sh:maxExclusive ex:4 ;
+        sh:maxInclusive ex:4 ;
+        sh:flags ex:Flag ;
+        sh:flags ex:Flag1 ;
+        sh:pattern ex:Pattern ;
+        sh:pattern ex:Pattern1 ;
+        sh:uniqueLang ex:Lang ;
+        sh:uniqueLang ex:Lang2 ;
+        sh:qualifiedValueShapesDisjoint ex:false ;
+        sh:qualifiedValueShapesDisjoint ex:true ;
+        sh:qualifiedMinCount ex:1 ;
+        sh:qualifiedMaxCount ex:2 ;
+        sh:qualifiedMinCount ex:3 ;
+        sh:qualifiedMaxCount ex:4 ;
+        sh:minLength ex:1 ;
+        sh:minLength ex:3 ;
+        sh:maxLength ex:2 ;
+        sh:maxLength ex:4 ;
+        sh:in ("1" "2") ;
+        sh:in ("3" "4") ;
+        sh:order "1" ;
+        sh:order "2" ;
+        sh:qualifiedValueShape ex:QVS1 ;
+        sh:qualifiedValueShape ex:QVS2 ;
+        sh:group ex:group1 ;
+        sh:group ex:group2 ;
+        sh:message ex:Message ;
+    ] .
+
+# langIn 1
+_:b1 rdf:first "one"^^xsd:string .
+_:b1 rdf:rest _:b2 .
+
+_:b2 rdf:first "two"^^xsd:string .
+_:b2 rdf:rest _:b3 .
+
+_:b3 rdf:first ex:three .
+_:b3 rdf:rest rdf:nil .
+
+# ignProp 1
+_:b4 rdf:first ex:1 .
+_:b4 rdf:rest _:b5 .
+
+_:b5 rdf:first ex:2 .
+_:b5 rdf:rest _:b6 .
+
+_:b6 rdf:first "ex3" .
+_:b6 rdf:rest rdf:nil .
+
+# langIn 2
+_:b7 rdf:first "one"^^xsd:string .
+_:b7 rdf:rest _:b2 .
+
+# ignProp 2
+_:b8 rdf:first ex:1 .
+_:b8 rdf:rest _:b5 .

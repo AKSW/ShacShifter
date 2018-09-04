@@ -4,7 +4,9 @@ class WellFormedShape:
     def __init__(self):
         self.classUri = ''
         self.uri = ''
-        self.name = '' #name and description can have more values than 1, but its semi-restricted to 1 per language tag?
+        # name and description can have more values than 1
+        # but its semi-restricted to 1 per language tag?
+        self.name = ''
         self.description = ''
         self.targetClass = []
         self.targetNode = []
@@ -28,7 +30,7 @@ class WellFormedShape:
         self.minExclusive = -1
         self.minInclusive = -1
         self.maxExclusive = -1
-        self.MaxInclusive = -1
+        self.maxInclusive = -1
         self.minLength = -1
         self.maxLength = -1
         self.pattern = ''
@@ -42,8 +44,8 @@ class WellFormedShape:
         self.nodes = []
         self.qualifiedValueShape = []
         self.qualifiedValueShapesDisjoint = []
-        self.qualifiedMinCount = -[]
-        self.qualifiedMaxCount = -[]
+        self.qualifiedMinCount = []
+        self.qualifiedMaxCount = []
         self.hasValue = []
         self.shIn = []
         self.order = -1
@@ -52,8 +54,9 @@ class WellFormedShape:
         # or just keep it as well-formed shape
         self.group = ''
         self.severity = -1
-        isSet = {}
+        # non-shacl variable for Exceptionhandling
+        self.errors = []
+        self.isSet = {}
         for var in vars(self):
             if not var.startswith('__'):
-                isSet[var] = False
-        self.isSet = isSet
+                self.isSet[var] = False

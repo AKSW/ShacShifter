@@ -17,11 +17,12 @@ class NodeShape:
         self.sXone = []
         self.message = {}
         self.severity = -1
-        isSet = {}
+        # non-shacl variable for Exceptionhandling
+        self.errors = []
+        self.isSet = {}
         for var in vars(self):
             if not var.startswith('__'):
-                isSet[var] = False
-        self.isSet = isSet
+                self.isSet[var] = False
 
     def fill(self, wellFormedShape):
         # is check for properties necessary? without targets the nodeshape is useless

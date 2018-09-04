@@ -5,6 +5,7 @@ import rdflib
 from .modules.WellFormedShape import WellFormedShape
 from .modules.NodeShape import NodeShape
 from .modules.PropertyShape import PropertyShape
+from .modules.WellFormedShapeConstraintCheck import WellFormedShapeConstraintCheck
 
 
 class ShapeParser:
@@ -16,7 +17,7 @@ class ShapeParser:
         self.rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
         self.sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
         self.g = rdflib.Graph()
-        self.nodeShapes = {}
+        self.wellFormedShapes = {}
         self.propertyShapes = {}
 
     def parseShape(self, inputFilePath):
@@ -30,9 +31,9 @@ class ShapeParser:
 
         for shapeUri in wellFormedShapeUris:
             wellFormedShape = self.parseWellFormedShape(shapeUri)
-            self.wellFormedShapes[wellFormedShape.uri] = wellFormedShape
+            self.wellFormedShapes[str(shapeUri)] = wellFormedShape
 
-        return self.nodeShapes
+        return self.wellFormedShapes
 
     def getWellFormedShapeUris(self):
         """Get URIs of all Root Node shapes.
@@ -42,11 +43,16 @@ class ShapeParser:
         wellFormedShapeUris = list()
 
         qres = self.g.query("""
+            PREFIX sh: <http://www.w3.org/ns/shacl#>
             SELECT DISTINCT ?root
-            WHERE {
+            WHERE {{
                 ?root ?s ?o .
                 FILTER NOT EXISTS {?a ?b ?root .}
-            }""")
+                }
+                UNION
+                {
+                ?s sh:node ?root
+                }}""")
 
         for row in qres:
             wellFormedShapeUris.append(row.root)
@@ -65,8 +71,8 @@ class ShapeParser:
 
         for stmt in self.g.subjects(self.sh.path, None):
             if (self.g.value(predicate=self.sh.property, object=stmt) is None and
-                self.g.value(predicate=self.rdf.first, object=stmt) is None and
-                self.g.value(predicate=self.sh['not'], object=stmt) is None):
+                    self.g.value(predicate=self.rdf.first, object=stmt) is None and
+                    self.g.value(predicate=self.sh['not'], object=stmt) is None):
                 propertyShapeUris.add(stmt)
 
         return propertyShapeUris
@@ -77,9 +83,14 @@ class ShapeParser:
         args:    string shapeUri
         returns: object WellFormedShape/NodeShape/PropertyShape
         """
+        # consider allowing different rdf predicates like title for headings etc.
         wellFormedShape = WellFormedShape()
         # test for most relevant constraints
-        self.checkConstraints(self.g, shapeUri)
+        wfscc = WellFormedShapeConstraintCheck(self.g, shapeUri)
+        wellFormedShape.errors = wfscc.errors
+        # add variable for invalidation, and maybe create "critical errors"
+        # if len(wellFormedShape.errors) > 0:
+        #     return None
         # if empty "URI's" are bad change it later on to add Blanknodes too
         if shapeUri != rdflib.term.BNode(shapeUri):
             wellFormedShape.isSet['uri'] = True
@@ -137,11 +148,13 @@ class ShapeParser:
         for stmt in self.g.objects(shapeUri, self.sh.property):
             wellFormedShape.isSet['property'] = True
             propertyShape = self.parseWellFormedShape(stmt)
+            wellFormedShape.errors += propertyShape.errors
             self.propertyShapes[stmt] = propertyShape
             wellFormedShape.properties.append(propertyShape)
 
         pathStart = self.g.value(subject=shapeUri, predicate=self.sh.path)
         if pathStart is not None:
+            wellFormedShape.isSet['path'] = True
             wellFormedShape.path = self.getPropertyPath(pathStart)
 
         for stmt in self.g.objects(shapeUri, self.sh['class']):
@@ -158,10 +171,10 @@ class ShapeParser:
             wellFormedShape.isSet['description'] = True
             wellFormedShape.description = str(val)
 
-            val = self.g.value(subject=shapeUri, predicate=self.sh.datatype)
+        val = self.g.value(subject=shapeUri, predicate=self.sh.datatype)
         if val is not None:
-            wellFormedShape.isSet['dataType'] = True
-            wellFormedShape.dataType = str(val)
+            wellFormedShape.isSet['datatype'] = True
+            wellFormedShape.datatype = str(val)
 
         minCount = self.g.value(subject=shapeUri, predicate=self.sh.minCount)
         if minCount is not None:
@@ -251,7 +264,7 @@ class ShapeParser:
             wellFormedShape.lessThanOrEquals.append(str(stmt))
 
         for stmt in self.g.objects(shapeUri, self.sh.node):
-            wellFormedShape.isSet['node'] = True
+            wellFormedShape.isSet['nodes'] = True
             wellFormedShape.nodes.append(str(stmt))
 
         for stmt in self.g.objects(shapeUri, self.sh.hasValue):
@@ -272,17 +285,17 @@ class ShapeParser:
                     break
                 val = rest_value
 
-
         val = self.g.value(subject=shapeUri, predicate=self.sh.order)
         if val is not None:
             wellFormedShape.isSet['order'] = True
             wellFormedShape.order = int(val)
-        
-        #QVS can have multiple Instances per Path, but every ProperyShape can only have 1
+
+        # QVS can have multiple Instances per Path, but every ProperyShape can only have 1
         val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShape)
         if val is not None:
             wellFormedShape.isSet['qualifiedValueShape'] = True
             wellFormedShape.qualifiedValueShape = self.parseWellFormedShape(val)
+            wellFormedShape.errors += wellFormedShape.qualifiedValueShape.errors
 
         val = self.g.value(subject=shapeUri, predicate=self.sh.qualifiedValueShapesDisjoint)
         if val is not None:
@@ -305,7 +318,7 @@ class ShapeParser:
         if val is not None:
             wellFormedShape.isSet['group'] = True
             wellFormedShape.group = self.parseWellFormedShape(val)
-
+            wellFormedShape.errors += wellFormedShape.group.errors
         try:
             propertyShape = PropertyShape()
             propertyShape.fill(wellFormedShape)
@@ -371,5 +384,3 @@ class ShapeParser:
         # last Object in this Pathpart, check if its an Uri and return it
         if isinstance(pathUri, rdflib.term.URIRef):
             return str(pathUri)
-        else:
-            raise Exception('Object of sh:path is no URI')

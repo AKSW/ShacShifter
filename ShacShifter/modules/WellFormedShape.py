@@ -1,13 +1,30 @@
-class PropertyShape:
-    """The PropertyShape class."""
+class WellFormedShape:
+    """The WellFormedShape class."""
 
     def __init__(self):
+        self.classUri = ''
         self.uri = ''
-        self.path = ''
-        self.classes = []
-        self.datatype = ''
+        # name and description can have more values than 1
+        # but its semi-restricted to 1 per language tag?
         self.name = ''
         self.description = ''
+        self.targetClass = []
+        self.targetNode = []
+        self.targetObjectsOf = []
+        self.targetSubjectsOf = []
+        self.nodeKind = ''
+        self.properties = []
+        self.defaultValue = ''
+        self.path = ''
+        self.closed = False
+        self.ignoredProperties = []
+        self.sOr = []
+        self.sNot = []
+        self.sAnd = []
+        self.sXone = []
+        self.message = {}
+        self.classes = []
+        self.datatype = ''
         self.minCount = -1
         self.maxCount = -1
         self.minExclusive = -1
@@ -32,23 +49,14 @@ class PropertyShape:
         self.hasValue = []
         self.shIn = []
         self.order = -1
+        # maybe add group shape as shape for special useage (extra information for
+        # 'grouped' parts of a form?) example in at #group
+        # or just keep it as well-formed shape
         self.group = ''
-        self.message = {}
-        self.sOr = []
-        self.sNot = []
-        self.sAnd = []
-        self.sXone = []
+        self.severity = -1
         # non-shacl variable for Exceptionhandling
         self.errors = []
         self.isSet = {}
         for var in vars(self):
             if not var.startswith('__'):
                 self.isSet[var] = False
-
-    def fill(self, wellFormedShape):
-        if not wellFormedShape.isSet['path']:
-            raise TypeError('Given Shape is no PropertyShape (no path)')
-        for var in vars(self):
-            if wellFormedShape.isSet[var]:
-                self.isSet[var] = True
-                setattr(self, var, getattr(wellFormedShape, var))

@@ -19,9 +19,9 @@ ex:exampleShape
         sh:maxInclusive 1 ;
         sh:minLength 1 ;
         sh:maxLength 2 ;
-        sh:pattern "[abc]" ;
-        sh:flags "i" ;
-        sh:languageIn ( "en" "de" ) ;
+        sh:pattern "[abc]"^^xsd:string ;
+        sh:flags "i"^^xsd:string ;
+        sh:languageIn ( "en"^^xsd:string "de"^^xsd:string ) ;
         sh:uniqueLang true ;
         sh:equals ex:PathB ,
                   ex:PathC ;

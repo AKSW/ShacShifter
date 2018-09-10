@@ -33,6 +33,14 @@ class ShapeParser:
             wellFormedShape = self.parseWellFormedShape(shapeUri)
             self.wellFormedShapes[str(shapeUri)] = wellFormedShape
 
+        unusedPropertyShapes = []
+        for shapeUri in self.wellFormedShapes:
+            if isinstance(self.wellFormedShapes[shapeUri], PropertyShape):
+                unusedPropertyShapes.append(shapeUri)
+
+        for shapeUri in unusedPropertyShapes:
+            self.wellFormedShapes.pop(shapeUri)
+
         return self.wellFormedShapes
 
     def getWellFormedShapeUris(self):

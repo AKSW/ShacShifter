@@ -85,7 +85,7 @@ class WellFormedShapeConstraintCheck:
         lastListEntry = False
 
         while not lastListEntry:
-            if not (type(uri) == rdflib.term.URIRef or type(uri) == rdflib.term.BNode):
+            if not (isinstance(uri, rdflib.term.URIRef) or isinstance(uri, rdflib.term.BNode)):
                 self.errors.append(
                     ShaclListConstraintError('Wrong Type in shacllist:{}'.format(uri))
                 )
@@ -117,11 +117,11 @@ class WellFormedShapeConstraintCheck:
         returns: None
         """
         correctType = False
-        if nodeKindType.isUri and type(object) == rdflib.term.URIRef:
+        if nodeKindType.isUri and isinstance(object, rdflib.term.URIRef):
             correctType = True
-        if nodeKindType.isBNode and type(object) == rdflib.term.BNode:
+        if nodeKindType.isBNode and isinstance(object, rdflib.term.BNode):
             correctType = True
-        if nodeKindType.isLiteral and type(object) == rdflib.term.Literal:
+        if nodeKindType.isLiteral and isinstance(object, rdflib.term.Literal):
             correctType = True
         if not correctType:
             self.errors.append(NodeKindConstraintError(

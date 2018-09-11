@@ -244,7 +244,9 @@ class RDFormsSerializer:
             """Check Propertey Shapes to fill the templates."""
             templates = []
             for propertyShape in nodeShape.properties:
-                templates.append(self.getTemplate(propertyShape))
+                template = self.getTemplate(propertyShape)
+                if template is not None:
+                    templates.append(template)
             return templates
 
         bundle = RDFormsTemplateBundle()

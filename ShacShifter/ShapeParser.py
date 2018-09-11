@@ -92,7 +92,7 @@ class ShapeParser:
         # if len(wellFormedShape.errors) > 0:
         #     return None
         # if empty "URI's" are bad change it later on to add Blanknodes too
-        if shapeUri != rdflib.term.BNode(shapeUri):
+        if not isinstance(shapeUri, rdflib.term.BNode):
             wellFormedShape.isSet['uri'] = True
             wellFormedShape.uri = str(shapeUri)
 

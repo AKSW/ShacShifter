@@ -9,7 +9,7 @@ class JekyllRDFSerializer:
     content = []
     outputfile = ''
 
-    def __init__(self, shapes, outputfile):
+    def __init__(self, nodeShapes, outputfile):
         try:
             fp = open(outputfile, 'w')
             self.outputfile = outputfile
@@ -20,12 +20,11 @@ class JekyllRDFSerializer:
         self.content.append('''<html><head>
                                 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
                             </head><body>\n''')
-        self.logger.debug(shapes)
+        self.logger.debug(nodeShapes)
         self.content.append('<div class ="container">\n')
         self.content.append("<h2>{{ page.rdf.iri }}</h2>\n")
         self.content.append("""{% assign type = page.rdf | rdf_property: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" %}\n""")
 
-        nodeShapes = shapes[0]
         for nodeShape in nodeShapes:
             self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
         self.content.append("""</div><div>

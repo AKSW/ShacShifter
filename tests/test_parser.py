@@ -230,6 +230,11 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(int(propertyShapeA.qualifiedMaxCount), 2)
         self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/PathB')
 
+    def testUnusedPropertyShapeParse(self):
+        wellFormedShapes = self.parser.parseShape(
+            self.dir + '/w3c/ExampleNodeShapeWithPropertyShapes.ttl')
+        self.assertEqual(len(wellFormedShapes), 1)
+
 
 def main():
     unittest.main()

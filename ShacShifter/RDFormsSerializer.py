@@ -330,7 +330,7 @@ class RDFormsSerializer:
             choiceItem = RDFormsChoiceExpression()
             choiceItem.label = choice
             choiceItem.value = choice
-            choiceItem.children = set(propertyShape.shIn) - set([choice])
+            choiceItem.children = list(set(propertyShape.shIn) - set([choice]))
             choices.append(choiceItem)
 
         return choices

@@ -235,6 +235,11 @@ class ShapeParserTests(unittest.TestCase):
             self.dir + '/w3c/ExampleNodeShapeWithPropertyShapes.ttl')
         self.assertEqual(len(wellFormedShapes), 1)
 
+    def testUsedPropertyShapeParse(self):
+        wellFormedShapes = self.parser.parseShape(
+            self.dir + '/positiveUsedPropertyShape.ttl')
+        self.assertEqual(
+            len(wellFormedShapes[str(self.ex.PositiveUsedPropertyShape)].properties), 2)
 
 def main():
     unittest.main()

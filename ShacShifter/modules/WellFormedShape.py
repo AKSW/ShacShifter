@@ -46,11 +46,10 @@ class WellFormedShape:
         self.qualifiedMaxCount = []
         self.hasValue = []
         self.shIn = []
-        self.order = -1
-        # maybe add group shape as shape for special useage (extra information for
-        # 'grouped' parts of a form?) example in at #group
-        # or just keep it as well-formed shape
+        self.order = float('inf')
         self.group = ''
+        # at the moment only handled for groups
+        self.rdfsLabel = {}
         self.severity = -1
         # non-shacl variable for Exceptionhandling
         self.errors = []

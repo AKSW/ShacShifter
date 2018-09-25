@@ -31,7 +31,7 @@ class PropertyShape:
         self.qualifiedMaxCount = []
         self.hasValue = []
         self.shIn = []
-        self.order = -1
+        self.order = float('inf')
         self.group = ''
         self.message = {}
         self.sOr = []

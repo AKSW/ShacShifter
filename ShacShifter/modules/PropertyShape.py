@@ -6,8 +6,8 @@ class PropertyShape:
         self.path = ''
         self.classes = []
         self.datatype = ''
-        self.name = ''
-        self.description = ''
+        self.name = {}
+        self.description = {}
         self.minCount = -1
         self.maxCount = -1
         self.minExclusive = -1

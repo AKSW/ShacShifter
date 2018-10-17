@@ -169,16 +169,6 @@ class ShapeParser:
             wellFormedShape.isSet['classes'] = True
             wellFormedShape.classes.append(str(stmt))
 
-        val = self.g.value(subject=shapeUri, predicate=self.sh['name'])
-        if val is not None:
-            wellFormedShape.isSet['name'] = True
-            wellFormedShape.name = str(val)
-
-        val = self.g.value(subject=shapeUri, predicate=self.sh['description'])
-        if val is not None:
-            wellFormedShape.isSet['description'] = True
-            wellFormedShape.description = str(val)
-
         val = self.g.value(subject=shapeUri, predicate=self.sh.datatype)
         if val is not None:
             wellFormedShape.isSet['datatype'] = True
@@ -327,6 +317,21 @@ class ShapeParser:
             wellFormedShape.isSet['group'] = True
             wellFormedShape.group = self.parseWellFormedShape(val)
             wellFormedShape.errors += wellFormedShape.group.errors
+
+        for stmt in self.g.objects(shapeUri, self.sh.name):
+            wellFormedShape.isSet['name'] = True
+            if (stmt.language is None):
+                wellFormedShape.name['default'] = str(stmt)
+            else:
+                wellFormedShape.name[stmt.language] = str(stmt)
+
+        for stmt in self.g.objects(shapeUri, self.sh.description):
+            wellFormedShape.isSet['description'] = True
+            if (stmt.language is None):
+                wellFormedShape.description['default'] = str(stmt)
+            else:
+                wellFormedShape.description[stmt.language] = str(stmt)
+
         try:
             propertyShape = PropertyShape()
             propertyShape.fill(wellFormedShape)

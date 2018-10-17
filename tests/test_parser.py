@@ -228,6 +228,12 @@ class ShapeParserTests(unittest.TestCase):
         self.assertEqual(propertyShapeA.qualifiedValueShapesDisjoint, True)
         self.assertEqual(int(propertyShapeA.qualifiedMinCount), 1)
         self.assertEqual(int(propertyShapeA.qualifiedMaxCount), 2)
+        self.assertEqual(str(propertyShapeA.name['default']), "C")
+        self.assertEqual(str(propertyShapeA.name['en']), "A")
+        self.assertEqual(str(propertyShapeA.name['de']), "B")
+        self.assertEqual(str(propertyShapeA.description['default']), "C")
+        self.assertEqual(str(propertyShapeA.description['en']), "A")
+        self.assertEqual(str(propertyShapeA.description['de']), "B")
         self.assertEqual(str(propertyShapeB.path), 'http://www.example.org/PathB')
 
     def testUnusedPropertyShapeParse(self):

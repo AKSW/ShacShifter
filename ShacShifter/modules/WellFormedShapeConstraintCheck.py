@@ -469,6 +469,26 @@ class WellFormedShapeConstraintCheck:
                     'Conflict found. Object has the wrong datatype:{}'.format(self.sh.message))
                 )
 
+        for stmt in self.g.objects(self.shapeUri, self.sh.name):
+            try:
+                # language attribute only exists for Literals
+                if stmt.language is None:
+                    self.datatypeConstraint(stmt, self.xsd.string)
+            except AttributeError:
+                self.errors.append(DataTypeConstraintError(
+                    'Conflict found. Object has the wrong datatype:{}'.format(self.sh.name))
+                )
+
+        for stmt in self.g.objects(self.shapeUri, self.sh.description):
+            try:
+                # language attribute only exists for Literals
+                if stmt.language is None:
+                    self.datatypeConstraint(stmt, self.xsd.string)
+            except AttributeError:
+                self.errors.append(DataTypeConstraintError(
+                    'Conflict found. Object has the wrong datatype:{}'.format(self.sh.description))
+                )
+
         # datatype constraints with single values:
         val = self.g.value(subject=self.shapeUri, predicate=self.sh.minCount)
         if val is not None:

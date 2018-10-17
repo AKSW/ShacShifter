@@ -39,6 +39,12 @@ ex:exampleShape
         sh:qualifiedValueShapesDisjoint true ;
         sh:qualifiedMinCount 1 ;
         sh:qualifiedMaxCount 2 ;
+        sh:name    "A"@en ,
+                   "B"@de ,
+                   "C" ;
+        sh:description "A"@en ,
+                       "B"@de ,
+                       "C" ;
     ] ,
                 [
             sh:path ex:PathB ;

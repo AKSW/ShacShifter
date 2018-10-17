@@ -4,10 +4,8 @@ class WellFormedShape:
     def __init__(self):
         self.classUri = ''
         self.uri = ''
-        # name and description can have more values than 1
-        # but its semi-restricted to 1 per language tag?
-        self.name = ''
-        self.description = ''
+        self.name = {}
+        self.description = {}
         self.targetClass = []
         self.targetNode = []
         self.targetObjectsOf = []

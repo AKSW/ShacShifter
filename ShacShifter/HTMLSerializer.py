@@ -18,7 +18,7 @@ class HTMLSerializer:
             raise Exception('Can''t write to file {}'.format(outputfile))
 
         self.content.append('<html> <body>\n')
-        self.logger.debug(shapes)
+        self.logger.debug(nodeShapes)
         for nodeShape in nodeShapes:
             self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
         self.content.append('</body></html>')

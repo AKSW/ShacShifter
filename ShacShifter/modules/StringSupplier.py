@@ -68,16 +68,18 @@ function textfieldAdd(id) {
         checked1 = "checked";
         checked2 = "";
     }
+    pattern = '"' + ancestor.dataset.pattern + '"'
     replacements = {
     "%ID%": id + counter,
     "%BID%": id,
     "%CHOICE%": disableChoice,
     "%CHECKED1%": checked1,
-    "%CHECKED2%": checked2};
+    "%CHECKED2%": checked2,
+    "%PATTERN%": pattern};
     e = document.createElement('div');
     e.setAttribute('id', id + counter.toString());
     d = [
-    '<input type="text" name="%ID%" onkeyup="checkFormValidity(this.parentElement)">',
+    '<input type="text" name="%ID%" pattern=%PATTERN% onkeyup="checkFormValidity(this.parentElement)">',
     '<input type="radio" name="%ID%radio" %CHOICE% value="iri" onclick="checkFormValidity(this.parentElement)" %CHECKED1%>IRI',
     '<input type="radio" name="%ID%radio" %CHOICE% value="literal" onclick="checkFormValidity(this.parentElement)" %CHECKED2%>Literal',
     '<button type="button"',
@@ -153,6 +155,9 @@ function sendData(form){
             }
             else {
                 object = '"' + object +  '"';
+                if(subinputs[j].parentElement.dataset.type != "") {
+                    object += "^^" + subinputs[j].parentElement.dataset.type
+                }
             }
             triples += '<' + form.ressourceIRI.value.trim() + '> <' + inputs[i].id +
                        '> ' + object + ' . ';
@@ -185,13 +190,14 @@ function resultPresentation(result){
 
 function checkFormValidity(subDiv){
     if(subDiv.children[1].checked) {
-        var objectUri = new URI(subDiv.children[1].value)
+        var objectUri = new URI(subDiv.children[0].value)
         if(!((objectUri.is("url") || objectUri.is("urn")) && objectUri.is("absolute"))){
             subDiv.children[0].style.background = "red"
             subDiv.dataset.correct = ""
         }
         else{
             subDiv.children[0].style.background = "white"
+            subDiv.children[0].title = ""
             subDiv.dataset.correct = "correct"
         }
     }
@@ -199,9 +205,16 @@ function checkFormValidity(subDiv){
         subDiv.children[0].style.background = "red"
         subDiv.dataset.correct = ""
     }
+    else if(subDiv.children[0].pattern != '' && subDiv.children[0].pattern != undefined && !subDiv.children[0].checkValidity()) {
+        //checks for validity of pattern/xsd type
+        subDiv.children[0].style.background = "red"
+        subDiv.children[0].title = subDiv.children[0].pattern
+        subDiv.dataset.correct = ""
+    }
     else {
-        //future check for string types, potentially string length etc etc
+        //future checks for string length etc.
         subDiv.children[0].style.background = "white"
+        subDiv.children[0].title = ""
         subDiv.dataset.correct = "correct"
     }
     checkMainDivValidity(subDiv.parentElement)
@@ -238,11 +251,11 @@ function checkCompleteValidity(form){
 }
 </script>"""
 
-    propertyMainDiv = """<div id="{}" data-min="{}" data-max="{}" data-type="{}" data-correct="">
+    propertyMainDiv = """<div id="{}" data-min="{}" data-max="{}" data-type="{}" data-pattern="{}" data-correct="">
 {}:<br>"""
 
     propertySubDiv = """<div id="{id}" data-correct="">
-<input type="text" name="{id}" onkeyup="checkFormValidity(this.parentElement)" style="background:red">
+<input type="text" name="{id}" pattern="{pattern}" onkeyup="checkFormValidity(this.parentElement)" style="background:red">
 <input type="radio" name="{id}radio" {choice} value="iri" onclick="checkFormValidity(this.parentElement)" {0}>IRI
 <input type="radio" name="{id}radio" {choice} value="literal" onclick="checkFormValidity(this.parentElement)" {1}>Literal{2}
 <button type="button" onclick="textfieldDel('{3}', this.parentElement)">-</button>

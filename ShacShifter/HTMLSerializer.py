@@ -2,6 +2,7 @@ from .modules.NodeShape import NodeShape
 from .modules.PropertyShape import PropertyShape
 from .modules.StringSupplier import StringSupplier
 from .ShapeParser import ShapeParser
+from XSDreg import XSDreg
 import logging
 
 
@@ -100,15 +101,18 @@ class HTMLFormTextItem(HTMLFormTemplate):
         self.type = 'text'
         self.nodeKind = ''
         self.datatype = ''
+        self.pattern = ''
 
     def htmlRepr(self):
         """Build HTML"""
         maxSet = False
         if 'max' in self.cardinality:
             maxSet = True
+        if self.pattern == '' and self.datatype != '':
+            self.pattern = XSDreg.XSDreg().getRegex(self.datatype)
         plainHTML = StringSupplier().propertyMainDiv.format(
             self.id, self.cardinality['min'], self.cardinality['max'] if maxSet else 0,
-            self.datatype, self.label)
+            self.datatype, self.pattern, self.label)
         disableChoice = 'disabled' if self.datatype != '' else ''
         counter = 1
         minFields = self.cardinality['pref']
@@ -123,7 +127,7 @@ class HTMLFormTextItem(HTMLFormTemplate):
                 'checked' if not disableChoice else '',
                 'checked' if disableChoice else '',
                 datatypeLink if self.datatype != '' else '',
-                self.id, id=(self.id + str(counter)), choice=disableChoice)
+                self.id, id=(self.id + str(counter)), choice=disableChoice, pattern=self.pattern)
             counter += 1
         nmin = ('min:' + str(self.cardinality['min']) + ' ') if self.cardinality['min'] else ""
         nmax = ('max:' + str(self.cardinality['max'])) if maxSet else ''
@@ -348,6 +352,7 @@ class HTMLSerializer:
                                     propertyShape.name + propertyShape.path.rsplit('/', 1)[-1])
             item.description = getDescription()
             item.nodeKind = nodeKind
+            item.pattern = propertyShape.pattern + propertyShape.flags
             return item
 
         def getDescription():

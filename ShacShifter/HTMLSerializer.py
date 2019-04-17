@@ -127,7 +127,8 @@ class HTMLFormTextItem(HTMLFormTemplate):
                 'checked' if not disableChoice else '',
                 'checked' if disableChoice else '',
                 datatypeLink if self.datatype != '' else '',
-                self.id, id=(self.id + str(counter)), choice=disableChoice, pattern=self.pattern)
+                self.id, id=(self.id + str(counter)), choice=disableChoice, pattern=self.pattern,
+                jsclass=self.datatype.rsplit('#', 1)[-1])
             counter += 1
         nmin = ('min:' + str(self.cardinality['min']) + ' ') if self.cardinality['min'] else ""
         nmax = ('max:' + str(self.cardinality['max'])) if maxSet else ''

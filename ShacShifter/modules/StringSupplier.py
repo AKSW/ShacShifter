@@ -3,7 +3,10 @@
 class StringSupplier:
     """Supplier for long Strings"""
 
-    header = """<script src="https://bowercdn.net/c/urijs-1.19.1/src/URI.min.js"></script>
+    header = """<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://bowercdn.net/c/urijs-1.19.1/src/URI.min.js"></script>
 <form action="">
 SPARQL Endpoint <br>
 <input type="text" name="endpoint" value="{}"><br>
@@ -37,6 +40,16 @@ Graph <br>
 
     script = """
 <script>
+// not the same as date, always has the timezone part and it can only be 0
+$(".date").flatpickr({dateFormat: "Z"});
+// no timezone atm for most types
+$(".time").flatpickr({enableTime: true, dateFormat: "H:i:S"});
+$(".dateTime").flatpickr({enableTime: true, dateFormat: "Z"});
+$(".gYearMonth").flatpickr({dateFormat: "Y-M"});
+$(".gYear").flatpickr({dateFormat: "Y"});
+$(".gMonthDay").flatpickr({dateFormat: "M-D"});
+$(".gDay").flatpickr({dateFormat: "D"});
+$(".gMonth").flatpickr({dateFormat: "M"});
 if(typeof(String.prototype.trim) === "undefined")
 {
     String.prototype.trim = function()
@@ -69,17 +82,19 @@ function textfieldAdd(id) {
         checked2 = "";
     }
     pattern = '"' + ancestor.dataset.pattern + '"'
+    jsclass = '"' + substr(ancestor.dataset.type.lastIndexOf('#') + 1) + '"'
     replacements = {
     "%ID%": id + counter,
     "%BID%": id,
     "%CHOICE%": disableChoice,
     "%CHECKED1%": checked1,
     "%CHECKED2%": checked2,
-    "%PATTERN%": pattern};
+    "%PATTERN%": pattern,
+    "%CLASS%": jsclass};
     e = document.createElement('div');
     e.setAttribute('id', id + counter.toString());
     d = [
-    '<input type="text" name="%ID%" pattern=%PATTERN% onkeyup="checkFormValidity(this.parentElement)">',
+    '<input type="text" name="%ID%" pattern=%PATTERN% class=%CLASS% onkeyup="checkFormValidity(this.parentElement)" onchange="checkFormValidity(this.parentElement)">',
     '<input type="radio" name="%ID%radio" %CHOICE% value="iri" onclick="checkFormValidity(this.parentElement)" %CHECKED1%>IRI',
     '<input type="radio" name="%ID%radio" %CHOICE% value="literal" onclick="checkFormValidity(this.parentElement)" %CHECKED2%>Literal',
     '<button type="button"',
@@ -255,7 +270,7 @@ function checkCompleteValidity(form){
 {}:<br>"""
 
     propertySubDiv = """<div id="{id}" data-correct="">
-<input type="text" name="{id}" pattern="{pattern}" onkeyup="checkFormValidity(this.parentElement)" style="background:red">
+<input type="text" name="{id}" pattern="{pattern}" class='{jsclass}' onkeyup="checkFormValidity(this.parentElement)" onchange="checkFormValidity(this.parentElement)" style="background:red">
 <input type="radio" name="{id}radio" {choice} value="iri" onclick="checkFormValidity(this.parentElement)" {0}>IRI
 <input type="radio" name="{id}radio" {choice} value="literal" onclick="checkFormValidity(this.parentElement)" {1}>Literal{2}
 <button type="button" onclick="textfieldDel('{3}', this.parentElement)">-</button>

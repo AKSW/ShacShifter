@@ -283,10 +283,12 @@ class HTMLSerializer:
                 groupedShapes.append(sorted(shapes, key=lambda x: x.order, reverse=False))
             for shapes in groupedShapes:
                 groupname = ''
+                if 'default' not in shapes[0].name:
+                    shapes[0].name['default'] = ''
                 if shapes[0].isSet['group']:
                     groupname = '<b>' + shapes[0].group.rdfsLabel['default'] + '</b><br>'
                 # isSet['name'] is still False if it was prior, important for later check
-                shapes[0].name = '<hr>' + groupname + shapes[0].name
+                shapes[0].name['default'] = '<hr>' + groupname + shapes[0].name['default']
             return [y for x in groupedShapes for y in x]
 
         def addFormItems(nodeShape):
@@ -349,8 +351,9 @@ class HTMLSerializer:
 
         def fillBasicItemValues(item):
             item.id = propertyShape.path
-            item.label = propertyShape.name if propertyShape.isSet['name'] else (
-                                    propertyShape.name + propertyShape.path.rsplit('/', 1)[-1])
+            item.label = propertyShape.name['default'] if propertyShape.isSet['name'] else (
+                                    propertyShape.name['default'] +
+                                    propertyShape.path.rsplit('/', 1)[-1])
             item.description = getDescription()
             item.nodeKind = nodeKind
             item.pattern = propertyShape.pattern + propertyShape.flags

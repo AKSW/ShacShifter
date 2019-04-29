@@ -16,6 +16,7 @@ class ShapeParser:
     def __init__(self):
         self.rdf = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
         self.sh = rdflib.Namespace('http://www.w3.org/ns/shacl#')
+        self.rdfs = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
         self.g = rdflib.Graph()
         self.wellFormedShapes = {}
         self.propertyShapes = {}
@@ -331,6 +332,13 @@ class ShapeParser:
                 wellFormedShape.description['default'] = str(stmt)
             else:
                 wellFormedShape.description[stmt.language] = str(stmt)
+
+        for stmt in self.g.objects(shapeUri, self.rdfs.label):
+            wellFormedShape.isSet['rdfsLabel'] = True
+            if (stmt.language is None):
+                wellFormedShape.rdfsLabel['default'] = str(stmt)
+            else:
+                wellFormedShape.rdfsLabel[stmt.language] = str(stmt)
 
         try:
             propertyShape = PropertyShape()

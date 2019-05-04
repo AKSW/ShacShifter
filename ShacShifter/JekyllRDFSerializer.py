@@ -78,26 +78,30 @@ href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.c
             self.logger.debug(nodes)
 
         for property in nodeShape.properties:
-            shapeName = nodeShape.targetClass[0].rsplit('/', 1)[-1]
+            if len(nodeShape.targetClass) > 0:
+                shapeName = nodeShape.targetClass[0].rsplit('/', 1)[-1]
+            else:
+                shapeName = "Temporary Shapename"
             content = self.propertyShapeEvaluation(property, fp, shapeName)
 
             self.content.append(content)
 
-        resource_hack = nodeShape.targetClass[0].rsplit('/', 1)[-1]
-        self.content.append(
-                '{{% assign {resource} = page.rdf | rdf_property: '.format(
-                    resource=resource_hack.lower()))
-        self.content.append(
-                '"<{type}/{resource}>", nil, true %}} <br>\n'.format(
-                    type=nodeShape.targetClass[0].rsplit('/', 1)[-2],
-                    resource=resource_hack.lower()))
-        self.content.append(
-                '\n{{% for {instance}_instance in {resource} '.format(
-                    instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower(),
-                    resource=resource_hack.lower()))
-        self.content.append(
-                '%}}\n<h3>{{{{ {instance}_instance.iri }}}}</h3>\n'.format(
-                    instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower()))
+        if len(nodeShape.targetClass) > 0:
+            resource_hack = nodeShape.targetClass[0].rsplit('/', 1)[-1]
+            self.content.append(
+                    '{{% assign {resource} = page.rdf | rdf_property: '.format(
+                        resource=resource_hack.lower()))
+            self.content.append(
+                    '"<{type}/{resource}>", nil, true %}} <br>\n'.format(
+                        type=nodeShape.targetClass[0].rsplit('/', 1)[-2],
+                        resource=resource_hack.lower()))
+            self.content.append(
+                    '\n{{% for {instance}_instance in {resource} '.format(
+                        instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower(),
+                        resource=resource_hack.lower()))
+            self.content.append(
+                    '%}}\n<h3>{{{{ {instance}_instance.iri }}}}</h3>\n'.format(
+                        instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower()))
 
         if len(nodeShape.targetClass) == 1:
             self.content.append("\n{% endfor %}\n{% endif %}\n<hr/>")
@@ -119,14 +123,16 @@ href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.c
         else:
             uri = propertyShape.path
             lowercase_str = uuid.uuid4().hex[:4]
-            label_jekyll = propertyShape.name.lower() \
-                if propertyShape.isSet['name'] else propertyShape.path.lower().rsplit('/', 1)[-1]
+            label_jekyll = propertyShape.name['default'].lower() \
+                if propertyShape.isSet['name'] and 'default' in propertyShape.name \
+                else propertyShape.path.lower().rsplit('/', 1)[-1]
             label_jekyll += "_" + lowercase_str
             label = propertyShape.name.lower() \
-                if propertyShape.isSet['name'] else propertyShape.path.lower().rsplit('/', 1)[-1]
+                if propertyShape.isSet['name'] and 'default' in propertyShape.name \
+                else propertyShape.path.lower().rsplit('/', 1)[-1]
 
             html += """{{% assign {label} = page.rdf | """.format(label=label_jekyll)
-            html += """rdf_property: "<{uri}>", nil, true %}}\n""".format(label=label_jekyll)
+            html += """rdf_property: "<{uri}>", nil, true %}}\n""".format(uri=uri)
 
             html += """{{% if {label} %}}\n""".format(label=label_jekyll)
 

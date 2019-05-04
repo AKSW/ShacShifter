@@ -20,6 +20,7 @@ def main(args=None):
     parser.add_argument('-o', '--output', type=str, help="The output file")
     parser.add_argument('-f', '--format', type=str, choices=[
         'rdforms',
+        'jekyll-rdf',
         'wisski',
         'html'
     ], help="The output format")

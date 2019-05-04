@@ -1,6 +1,7 @@
 import logging
 import uuid
 
+
 # example class for Jekyll-RDF
 class JekyllRDFSerializer:
     """A Serializer that writes Template for JekyllRDF"""
@@ -18,12 +19,15 @@ class JekyllRDFSerializer:
             raise Exception('Can''t write to file {}'.format(outputfile))
 
         self.content.append('''<html><head>
-                                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
-                            </head><body>\n''')
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+</head><body>\n''')
         self.logger.debug(nodeShapes)
         self.content.append('<div class ="container">\n')
         self.content.append("<h2>{{ page.rdf.iri }}</h2>\n")
-        self.content.append("""{% assign type = page.rdf | rdf_property: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" %}\n""")
+        self.content.append("""
+{% assign type = page.rdf | rdf_property: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" %}\n
+""")
 
         for nodeShape in nodeShapes:
             self.nodeShapeEvaluation(nodeShapes[nodeShape], fp)
@@ -58,9 +62,8 @@ class JekyllRDFSerializer:
         elif len(nodeShape.targetClass) == 1:
             self.content.append('{{% if type.iri == "{type}" %}}\n\n'.format(
                 type=nodeShape.targetClass[0].lower()))
-            self.content.append("Ressource: <strong>{resource}</strong> ({type})<br><br>\n\n".format(
-                resource=nodeShape.targetClass[0].rsplit('/', 1)[-1], type=nodeShape.targetClass[0]))
-
+            self.content.append("Ressource: <strong>{res}</strong> ({type})<br><br>\n\n".format(
+                res=nodeShape.targetClass[0].rsplit('/', 1)[-1], type=nodeShape.targetClass[0]))
 
         for nodes in nodeShape.targetNode:
             self.logger.debug(nodes)
@@ -77,15 +80,24 @@ class JekyllRDFSerializer:
         for property in nodeShape.properties:
             shapeName = nodeShape.targetClass[0].rsplit('/', 1)[-1]
             content = self.propertyShapeEvaluation(property, fp, shapeName)
-            
+
             self.content.append(content)
 
         resource_hack = nodeShape.targetClass[0].rsplit('/', 1)[-1]
         self.content.append(
-                '{{% assign {resource} = page.rdf | rdf_property: "<{type}/{resource}>", nil, true %}} <br>\n'.format(
-                    type=nodeShape.targetClass[0].rsplit('/', 1)[-2], resource=resource_hack.lower()))
-        self.content.append('\n{{% for {instance}_instance in {resource} %}}\n<h3>{{{{ {instance}_instance.iri }}}}</h3>\n'.format(
-                    instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower(), resource=resource_hack.lower()))
+                '{{% assign {resource} = page.rdf | rdf_property: '.format(
+                    resource=resource_hack.lower()))
+        self.content.append(
+                '"<{type}/{resource}>", nil, true %}} <br>\n'.format(
+                    type=nodeShape.targetClass[0].rsplit('/', 1)[-2],
+                    resource=resource_hack.lower()))
+        self.content.append(
+                '\n{{% for {instance}_instance in {resource} '.format(
+                    instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower(),
+                    resource=resource_hack.lower()))
+        self.content.append(
+                '%}}\n<h3>{{{{ {instance}_instance.iri }}}}</h3>\n'.format(
+                    instance=nodeShape.targetClass[0].rsplit('/', 1)[-1].lower()))
 
         if len(nodeShape.targetClass) == 1:
             self.content.append("\n{% endfor %}\n{% endif %}\n<hr/>")
@@ -109,21 +121,21 @@ class JekyllRDFSerializer:
             lowercase_str = uuid.uuid4().hex[:4]
             label_jekyll = propertyShape.name.lower() \
                 if propertyShape.isSet['name'] else propertyShape.path.lower().rsplit('/', 1)[-1]
-            label_jekyll += "_"+ lowercase_str
+            label_jekyll += "_" + lowercase_str
             label = propertyShape.name.lower() \
                 if propertyShape.isSet['name'] else propertyShape.path.lower().rsplit('/', 1)[-1]
 
-            html += """{{% assign {label} = page.rdf | rdf_property: "<{uri}>", nil, true %}}\n""".format(
-                    uri=uri, label=label_jekyll, type=shapeName.lower())
+            html += """{{% assign {label} = page.rdf | """.format(label=label_jekyll)
+            html += """rdf_property: "<{uri}>", nil, true %}}\n""".format(label=label_jekyll)
 
             html += """{{% if {label} %}}\n""".format(label=label_jekyll)
 
             html += """<dl>"""
-            html += """<dt>{label}</dt>""".format(label=label)  
+            html += """<dt>{label}</dt>""".format(label=label)
             html += """{{% for each_{label} in {label} %}}\n""".format(label=label_jekyll)
             html += """{{% if each_{label}.iri %}}\n""".format(label=label_jekyll)
-            html += """<dd>Link: <a href={{{{each_{label}.page_url}}}}>{{{{each_{label}}}}}</a></dd>\n
-                        {{% else %}}\n""".format(label=label_jekyll)
+            html += """<dd>Link: <a href={{{{each_{label}.page_url}}}}>{{{{each_{label}}}}}</a></dd>
+{{% else %}}\n""".format(label=label_jekyll)
             html += """<dd>{{{{each_{label} }}}}</dd>\n{{% endif %}}\n""".format(label=label_jekyll)
 
             html += """\n{% endfor %}\n</dl>\n{% endif %}\n"""
